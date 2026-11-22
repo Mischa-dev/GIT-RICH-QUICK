@@ -6,6 +6,8 @@ Your coding agent bills by the step. Your branch needs one more commit. Finance 
 
 ## Play
 
+**[Play Git Rich Quick in your browser](https://mischa-dev.github.io/GIT-RICH-QUICK/)**
+
 Run `npm start` and open **http://127.0.0.1:4173**. Node 22.13 or newer is enough. The game starts with 1,200 fake tokens, saves in your browser and serves its own art, fonts and synth audio.
 
 For the fastest route to financial distress, open **Agent Desk**, take the dark-mode ticket, choose **Overclock**, and deploy. When the agent runs out of tokens, Sponsor TV will pay you 350 to watch three cuts of deeply questionable television. Your worker picks up at its last checkpoint.
