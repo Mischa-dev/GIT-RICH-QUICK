@@ -1,0 +1,504 @@
+#fishing-card {
+  min-width: 0;
+}
+.pond-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 154px;
+  padding: 13px 15px 14px;
+  overflow: hidden;
+  text-align: left;
+  color: #fff1db;
+  background: #29273e;
+  border: 1px solid #474252;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.pond-card-art,
+.pond-card::after,
+.pond-lake {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pond-card-art,
+.pond-lake {
+  background: #4c4167 url("../assets/fishing-pond.png") center center / cover
+    no-repeat;
+  image-rendering: pixelated;
+}
+.pond-card-art {
+  z-index: -2;
+  transition: transform 0.35s ease;
+  background-position: 60% 65%;
+}
+.pond-card::after {
+  content: "";
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 16, 33, 0.19),
+    transparent 48%,
+    rgba(14, 17, 34, 0.55) 70%,
+    #151725 100%
+  );
+}
+.pond-card:hover .pond-card-art {
+  transform: scale(1.035);
+}
+.pond-card:focus-visible,
+.pond-window button:focus-visible {
+  outline: 2px solid var(--gold, #ffd37b);
+  outline-offset: 2px;
+}
+.pond-card-tag {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  align-self: flex-start;
+  padding: 4px 6px;
+  background: #211e33db;
+  border: 1px solid #86829c80;
+  border-radius: 3px;
+  color: #f6e3d0;
+  font: 700 9px/1 var(--mono, monospace);
+  letter-spacing: 0.08em;
+}
+.pond-card-tag i {
+  width: 7px;
+  height: 7px;
+  display: inline-block;
+  background: #ecc69e;
+  clip-path: polygon(
+    40% 0,
+    61% 0,
+    61% 28%,
+    100% 40%,
+    100% 60%,
+    66% 65%,
+    60% 100%,
+    40% 100%,
+    34% 64%,
+    0 60%,
+    0 40%,
+    34% 33%
+  );
+}
+.pond-card-caption {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+.pond-card-caption strong,
+.pond-card-caption small {
+  display: block;
+}
+.pond-card-caption strong {
+  font: 800 25px/0.98 var(--display, system-ui);
+  letter-spacing: -0.045em;
+  text-shadow: 0 1px 5px #232034;
+}
+.pond-card-caption small {
+  margin-top: 5px;
+  color: #e0d1da;
+  font: 11px/1.25 var(--mono, monospace);
+}
+.pond-card-arrow {
+  display: grid;
+  place-content: center;
+  flex: 0 0 27px;
+  height: 27px;
+  margin-bottom: 1px;
+  color: #ffecd8;
+  border: 1px solid #aa9ca3;
+  border-radius: 5px;
+  background: #242438b8;
+}
+.pond-card-arrow i {
+  position: relative;
+  width: 11px;
+  height: 11px;
+  border-top: 1.5px solid currentColor;
+  border-right: 1.5px solid currentColor;
+}
+.pond-card-arrow i::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: 0;
+  width: 13px;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(-45deg);
+  transform-origin: right center;
+}
+.pond-window {
+  --pond-ink: #171824;
+  --pond-light: #f5eadb;
+  --pond-sub: #c1bac6;
+  --pond-line: #43404d;
+  --pond-mint: #9cdbb6;
+  width: 100%;
+  min-width: 0;
+  color: var(--pond-light);
+}
+.pond-window * {
+  box-sizing: border-box;
+}
+.pond-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 10px;
+  padding: 3px;
+  border: 1px solid var(--pond-line);
+  border-radius: 7px;
+  background: #1b1a23;
+  width: fit-content;
+  max-width: 100%;
+}
+.pond-tabs button {
+  border: 0;
+  border-radius: 4px;
+  padding: 7px 10px;
+  cursor: pointer;
+  color: var(--pond-sub);
+  background: transparent;
+  font: 600 12px/1 var(--mono, monospace);
+}
+.pond-tabs button[aria-pressed="true"] {
+  background: #413b46;
+  color: #fff1db;
+}
+.pond-tabs button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.pond-tabs span {
+  color: #bdb5c7;
+  font-size: 0.85em;
+}
+.pond-scene {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  aspect-ratio: 320/120;
+  border: 1px solid #5e566c;
+  overflow: hidden;
+  background: var(--pond-ink);
+  border-radius: 6px;
+}
+.pond-lake {
+  z-index: -1;
+  background-size: 100% 100%;
+}
+.phase-wait,
+.phase-bite,
+.phase-reel {
+  cursor: pointer;
+}
+.pond-float {
+  position: absolute;
+  top: 70%;
+  left: 63.8%;
+  width: 1.3%;
+  height: 3.7%;
+  opacity: 0;
+  background: linear-gradient(#fff4ce 0 42%, #ec775f 42% 100%);
+  border-radius: 1px;
+  box-shadow: 0 1px 0 #7a5778;
+}
+.pond-float:after {
+  content: "";
+  position: absolute;
+  top: 84%;
+  width: 350%;
+  height: 54%;
+  left: -125%;
+  border: 1px solid #d1b3bc;
+  border-radius: 50%;
+  animation: pond-ripple 1.8s ease-out infinite;
+}
+.phase-wait .pond-float,
+.phase-bite .pond-float,
+.phase-reel .pond-float {
+  opacity: 1;
+  animation: pond-bob 1.4s ease-in-out infinite alternate;
+}
+.phase-bite .pond-float {
+  animation: pond-dip 0.27s ease-in-out infinite alternate;
+}
+.pond-bite-badge {
+  position: absolute;
+  left: 64.4%;
+  bottom: 32%;
+  transform: translateX(-50%) rotate(-4deg);
+  border: 2px solid #33293b;
+  border-radius: 3px;
+  background: #ffda89;
+  color: #3d2932;
+  padding: 4px 7px 5px;
+  box-shadow: 2px 2px 0 #392c46;
+  font: 900 clamp(11px, 3vw, 19px) / 1 var(--display, system-ui);
+}
+.pond-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 13px;
+  min-height: 46px;
+}
+.pond-state {
+  display: grid;
+  gap: 3px;
+}
+.pond-state b {
+  font: 750 17px/1.12 var(--display, system-ui);
+}
+.pond-hint,
+.pond-description {
+  margin: 0;
+  font:
+    13px/1.45 system-ui,
+    sans-serif;
+  color: var(--pond-sub);
+}
+.pond-window .pond-action {
+  flex-shrink: 0;
+  min-height: 39px;
+  padding: 9px 15px;
+  border: 1px solid #b0ebc5;
+  border-radius: 5px;
+  background: #a5dcba;
+  box-shadow: 0 2px 0 #537e67;
+  color: #1a2924;
+  cursor: pointer;
+  font: 800 13px/1.15 var(--display, system-ui);
+}
+.pond-action:hover {
+  filter: brightness(1.09);
+}
+.pond-action:active {
+  transform: translateY(1px);
+}
+.pond-reel-readout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  color: var(--pond-sub);
+  font: 12px/1.3 var(--mono, monospace);
+}
+.pond-rail {
+  position: relative;
+  height: 17px;
+  flex: 1;
+  margin: 4px 0;
+  border: 1px solid #797082;
+  border-radius: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    #413b49 0 11px,
+    #504752 11px 12px
+  );
+}
+.pond-safe {
+  position: absolute;
+  inset-block: 0;
+  border-inline: 2px solid #b9f7c8;
+  background: repeating-linear-gradient(125deg, #4d926f 0 4px, #629d7d 4px 7px);
+}
+.pond-needle {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 4px;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  background: #ffe6ac;
+  box-shadow: 0 0 0 1px #4c3b41;
+}
+.pond-reveal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  gap: clamp(10px, 3vw, 20px);
+  background: linear-gradient(115deg, #22203bd9, #24273ada 55%, #292641b3);
+}
+.pond-reveal-sprite {
+  display: grid;
+  place-content: center;
+  width: clamp(75px, 25%, 135px);
+  aspect-ratio: 1.4;
+  background: radial-gradient(
+    ellipse closest-side,
+    rgba(240, 202, 150, 0.3),
+    transparent
+  );
+  flex-shrink: 0;
+}
+.pond-sprite {
+  display: inline-block;
+  width: 48px;
+  aspect-ratio: 48/28;
+  background: url("../assets/fishing-catches.png") var(--sprite-x) center /
+    1000% 100% no-repeat;
+  image-rendering: pixelated;
+  flex: none;
+}
+.pond-reveal-sprite .pond-sprite {
+  width: clamp(80px, 19vw, 140px);
+  filter: drop-shadow(2px 3px 0 #201d35);
+  animation: pond-arrive 0.35s ease-out both;
+}
+.pond-reveal strong,
+.pond-reveal small {
+  display: block;
+}
+.pond-reveal small {
+  margin-bottom: 5px;
+  font: 700 10px/1.4 var(--mono, monospace);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #ffd8a4;
+}
+.pond-reveal strong {
+  font: 800 clamp(17px, 3.2vw, 29px) / 1.04 var(--display, system-ui);
+  letter-spacing: -0.03em;
+  color: #fff1da;
+  text-wrap: balance;
+}
+.pond-description {
+  padding: 9px 11px;
+  margin-top: 8px;
+  border-left: 2px solid #86738e;
+  color: #ddd2dd;
+  background: #332e38;
+}
+.pond-book-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 7px;
+  padding: 5px 0 10px;
+  font: 11px/1.2 var(--mono, monospace);
+  color: var(--pond-sub);
+}
+.pond-book-head b {
+  color: var(--pond-mint);
+}
+.pond-species {
+  display: grid;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: min(425px, 54vh);
+  overflow-y: auto;
+  border-block: 1px solid var(--pond-line);
+}
+.pond-species li {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 7px 6px;
+  border-bottom: 1px solid #393541;
+}
+.pond-species li:last-child {
+  border: 0;
+}
+.pond-species b,
+.pond-species small {
+  display: block;
+}
+.pond-species b {
+  font: 700 14px/1.2 var(--display, system-ui);
+}
+.pond-species small,
+.pond-rarity {
+  margin-top: 2px;
+  color: var(--pond-sub);
+  font: 10px/1.3 var(--mono, monospace);
+}
+.pond-silhouette {
+  filter: brightness(0) invert(0.48) sepia(0.08) hue-rotate(232deg);
+  opacity: 0.8;
+}
+.pond-unseen b {
+  color: #a69da8;
+}
+.pond-rarity {
+  margin-left: auto;
+  color: #d8bd9c;
+}
+@keyframes pond-ripple {
+  from {
+    transform: scale(0.35);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+@keyframes pond-bob {
+  from {
+    transform: translateY(-1px);
+  }
+  to {
+    transform: translateY(1px);
+  }
+}
+@keyframes pond-dip {
+  from {
+    transform: translateY(-1px);
+  }
+  to {
+    transform: translateY(4px);
+  }
+}
+@keyframes pond-arrive {
+  from {
+    transform: translateY(10px) rotate(-6deg);
+    opacity: 0.3;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (max-width: 440px) {
+  .pond-controls {
+    align-items: start;
+    gap: 8px;
+  }
+  .pond-window .pond-action {
+    padding-inline: 11px;
+  }
+  .pond-state b {
+    font-size: 15px;
+  }
+  .pond-hint {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pond-card-art {
+    transition: none;
+  }
+  .pond-window .pond-float,
+  .pond-window .pond-float:after,
+  .pond-reveal-sprite .pond-sprite {
+    animation: none;
+  }
+}
