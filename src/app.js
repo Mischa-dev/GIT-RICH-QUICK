@@ -10,6 +10,7 @@ import { initFloor } from "./floor.js";
 import { initT3 } from "./t3.js";
 import { createJuice } from "./juice.js";
 import { startBackdrop } from "./backdrop.js";
+import { initAllIn } from "./allin.js";
 
 const $ = (s) => document.querySelector(s);
 const icons = {
@@ -53,7 +54,7 @@ const wallet = createEconomy(storage, () => {
 });
 const audio = soundSystem(wallet);
 const juice = createJuice({ wallet, audio });
-startBackdrop(() => juice.heat / 100);
+const backdrop = startBackdrop(() => juice.heat / 100);
 document.addEventListener("pointerdown", () => audio.init(), { once: true });
 document.addEventListener("keydown", () => audio.init(), { once: true });
 let lastAct = null;
@@ -177,7 +178,9 @@ const api = {
   sound: audio.sound,
   fund: (reason, callback) => sponsors.open(reason, callback),
   openT3: (brief) => t3.open(brief),
+  allIn: (opts) => allin.open(opts),
 };
+const allin = initAllIn(api);
 const sponsors = initSponsors(api),
   t3 = initT3(api),
   slots = initSlots(api),
@@ -363,7 +366,7 @@ function ticker() {
 }
 let feedSignature = "";
 function paintFeed() {
-  const wins = wallet.state.events.filter((e) => e.amount > 0).slice(0, 6);
+  const wins = wallet.state.events.filter((e) => e.amount > 0).slice(0, 4);
   const sig = wins.map((e) => e.time + ":" + e.amount).join();
   if (sig === feedSignature) return;
   const fresh = feedSignature !== "";
@@ -433,7 +436,7 @@ document.addEventListener("keydown", (e) => {
   );
   if (!slot) return;
   // Inside the agent desk, letters are for mashing; only digits switch machines.
-  if (dialog.open && !/^[1-6]$/.test(key)) return;
+  if (dialog.open && !/^[1-69]$/.test(key)) return;
   e.preventDefault();
   slot.classList.add("pressed");
   setTimeout(() => slot.classList.remove("pressed"), 120);
@@ -480,7 +483,7 @@ function boot(instant) {
   titleScreen.classList.add("leaving");
   setTimeout(() => {
     html.removeAttribute("data-booting");
-    const game = $(".game");
+    const game = $(".app");
     game.classList.add("boot");
     setTimeout(() => game.classList.remove("boot"), 1200);
     juice.burst(null, { kind: "confetti", count: 120, speed: 1.3 });
@@ -506,3 +509,58 @@ soundIcon();
 paintJackpot();
 update();
 route();
+
+// ---------------------------------------------------------------------------
+// Everything moves on the beat. The music reports each sixteenth; when it is
+// off (or not started yet), a silent clock at the same tempo takes over.
+const root = document.documentElement;
+let lastStep = 0,
+  silentStep = 0;
+function pulse(cls, ms = 120) {
+  root.classList.remove(cls);
+  void root.offsetWidth;
+  root.classList.add(cls);
+  setTimeout(() => root.classList.remove(cls), ms);
+}
+function onStep(step) {
+  lastStep = performance.now();
+  if (juice.intensity === 0 || juice.reduced) return;
+  const tier = juice.tier;
+  if (step % 4 === 0) {
+    pulse("kick");
+    backdrop.kick(0.35 + tier * 0.18);
+    // Vegas: once you're warm it starts raining money.
+    if (tier >= 2 && juice.intensity === 2)
+      for (let i = 0; i < tier - 1; i++)
+        juice.burst(
+          { x: Math.random() * innerWidth, y: -20 },
+          { kind: "coin", count: 1, angle: Math.PI / 2, spread: 0.3, speed: 0.35 },
+        );
+  }
+  if (step === 4 || step === 12) {
+    pulse("snare");
+    // Strobe on the snare only when it's properly hot (≤ 2 flashes a second).
+    if (tier >= 3 && juice.intensity === 2) juice.flash("#ffffff", 0.07 + (tier - 3) * 0.05);
+  }
+  if (tier >= 4 && step % 2 === 0) pulse("hat", 80);
+}
+audio.onStep = onStep;
+setInterval(() => {
+  if (performance.now() - lastStep < 600) return;
+  onStep(silentStep++ % 16);
+  lastStep = 0;
+}, 60000 / 126 / 4);
+
+// Burn meter in the status bar: tokens spent per second, smoothed.
+let lastSpent = wallet.state.spent,
+  burn = 0;
+setInterval(() => {
+  const now = wallet.state.spent;
+  burn = burn * 0.6 + (now - lastSpent) * 0.4;
+  lastSpent = now;
+  const el = $("#sb-burn");
+  if (el) {
+    el.textContent = Math.round(burn) + " tok/s";
+    el.classList.toggle("hot", burn > 20);
+  }
+}, 1000);

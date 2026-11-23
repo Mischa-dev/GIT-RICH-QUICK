@@ -99,6 +99,21 @@ const phrases = {
   ],
   boom: [[140, 0.7, "sine", 28, 0.45]],
   mash: [[520, 0.03, "square", 1040, 0.05]],
+  ping: [
+    [1318, 0.05, "sine", 0, 0.12],
+    [1760, 0.14, "sine", 0, 0.1],
+  ],
+  glitch: [
+    [90, 0.03, "square", 2400, 0.06],
+    [3000, 0.02, "square", 200, 0.05],
+    [160, 0.04, "sawtooth", 1200, 0.05],
+  ],
+  reveal: [
+    [392, 0.04, "square", 0, 0.07],
+    [523, 0.04, "square", 0, 0.07],
+    [659, 0.04, "square", 0, 0.07],
+    [784, 0.12, "square", 1568, 0.08],
+  ],
 };
 
 export function soundSystem(store) {
@@ -110,7 +125,8 @@ export function soundSystem(store) {
     timer,
     next,
     beat = 0,
-    heat = 0;
+    heat = 0,
+    tempo = 126;
   let effects = store.get("sound.enabled", true),
     music = store.get("music.enabled", true);
   // Browsers refuse audio before the first gesture; don't even try.
@@ -180,6 +196,25 @@ export function soundSystem(store) {
     src.start(t, Math.random() * 0.3);
     src.stop(t + length + 0.02);
   }
+  function sweep(t, length, from, to, hzFrom, hzTo, type) {
+    if (!ctx) return;
+    const src = ctx.createBufferSource(),
+      f = ctx.createBiquadFilter(),
+      amp = ctx.createGain();
+    src.buffer = noiseBuf;
+    src.loop = true;
+    f.type = type;
+    f.Q.value = 1.4;
+    f.frequency.setValueAtTime(hzFrom, t);
+    f.frequency.exponentialRampToValueAtTime(hzTo, t + length);
+    amp.gain.setValueAtTime(Math.max(0.0001, from), t);
+    amp.gain.exponentialRampToValueAtTime(Math.max(0.0001, to), t + length);
+    src.connect(f);
+    f.connect(amp);
+    amp.connect(output);
+    src.start(t);
+    src.stop(t + length + 0.05);
+  }
   function sound(key, opts = {}) {
     if (!effects) return;
     init();
@@ -190,6 +225,19 @@ export function soundSystem(store) {
       const len = opts.length || 1.2;
       note(180, at, len, 0.07, "sawtooth", 1400);
       noise(at, len, 0.05, 1200, output, "bandpass");
+      return;
+    }
+    if (key === "inhale") {
+      // Crackle rising as the coil heats.
+      const len = opts.length || 1.2;
+      sweep(at, len, 0.02, 0.09, 500, 2600, "bandpass");
+      for (let t = 0.05; t < len; t += 0.04 + Math.random() * 0.07)
+        noise(at + t, 0.012, 0.05 + Math.random() * 0.05, 5000);
+      return;
+    }
+    if (key === "exhale") {
+      sweep(at, 1.4, 0.12, 0.0001, 1800, 260, "lowpass");
+      note(70, at, 0.5, 0.12, "sine", 45);
       return;
     }
     if (key === "whoosh") {
@@ -210,7 +258,13 @@ export function soundSystem(store) {
     if (next < ctx.currentTime - 0.4) next = ctx.currentTime + 0.02;
     const bus = musicBus;
     while (next < cutoff) {
-      const step = beat % 16,
+      const step = beat % 16;
+      // Let the visuals hit on the same sixteenth the speakers do.
+      if (api.onStep) {
+        const at = next;
+        setTimeout(() => api.onStep(step), Math.max(0, (at - ctx.currentTime) * 1000));
+      }
+      const
         root = bass[Math.floor(beat / 16) % 4];
       if (step % 4 === 0 || step === 11)
         note(root * (step === 11 ? 2 : 1), next, 0.18, 0.105, "triangle", 0, bus);
@@ -227,7 +281,7 @@ export function soundSystem(store) {
       if (heat > 0.55)
         note(4 * root * 2 ** (lead[(step * 3) % 16] / 12), next, 0.05, 0.02, "square", 0, bus);
       if (heat > 0.8 && (step === 14 || step === 15)) note(115, next, 0.08, 0.14, "sine", 40, bus);
-      next += 60 / 126 / 4;
+      next += 60 / tempo / 4;
       beat++;
     }
   }
@@ -245,9 +299,20 @@ export function soundSystem(store) {
     if (document.hidden) stop();
     else if (music && ctx) start();
   });
-  return {
+  const api = {
+    onStep: null,
+    get playing() {
+      return !!timer;
+    },
+    get tempo() {
+      return tempo;
+    },
     init,
     sound,
+    /** Music follows the player's heart rate. */
+    setTempo(bpm) {
+      tempo = Math.max(96, Math.min(184, Number(bpm) || 126));
+    },
     setHeat(value) {
       const v = Math.max(0, Math.min(1, value));
       if (Math.abs(v - heat) < 0.01) return;
@@ -274,4 +339,5 @@ export function soundSystem(store) {
       } else stop();
     },
   };
+  return api;
 }

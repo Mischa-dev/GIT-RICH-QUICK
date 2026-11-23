@@ -21,6 +21,15 @@ const quiet = new Proxy(
 );
 export const juiceOf = (api) => api?.juice || quiet;
 
+/** Broadcast a floor event (wins, rolls, merges…) for the chat, pings and vitals. */
+export function emit(type, detail = {}) {
+  try {
+    window.dispatchEvent(new CustomEvent("grq:event", { detail: { type, ...detail } }));
+  } catch {
+    /* No window (tests): nobody is listening anyway. */
+  }
+}
+
 // --- Pure rules (tested) -----------------------------------------------------
 
 export const hypeTiers = [
@@ -194,9 +203,9 @@ export function createJuice({ wallet, audio }) {
         y: y + rand(-(opts.jitter || 0), opts.jitter || 0),
         vx: Math.cos(a) * v,
         vy: Math.sin(a) * v - (kind === "confetti" ? 260 : kind === "coin" ? 380 : 80) * speed,
-        g: kind === "confetti" ? 520 : kind === "ember" ? -60 : kind === "star" ? 0 : 1100,
-        drag: kind === "confetti" ? 2.6 : kind === "star" ? 3.4 : 0.9,
-        life: rand(0.5, 1.1) * (kind === "confetti" ? 2.2 : kind === "coin" ? 1.6 : 1),
+        g: kind === "confetti" ? 520 : kind === "ember" ? -60 : kind === "star" ? 0 : kind === "smoke" ? -40 : 1100,
+        drag: kind === "confetti" ? 2.6 : kind === "star" ? 3.4 : kind === "smoke" ? 1.8 : 0.9,
+        life: rand(0.5, 1.1) * (kind === "confetti" ? 2.2 : kind === "coin" ? 1.6 : kind === "smoke" ? 3.4 : 1),
         age: 0,
         size: (opts.size || (kind === "confetti" ? 7 : kind === "coin" ? 18 : 4)) * rand(0.7, 1.3),
         rot: rand(0, 6.28),
@@ -311,6 +320,16 @@ export function createJuice({ wallet, audio }) {
         ctx.fillStyle = p.color;
         ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
         ctx.restore();
+      } else if (p.kind === "smoke") {
+        const r = p.size * (1 + t * 2.4);
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+        g.addColorStop(0, `rgba(220,214,235,${0.22 * (1 - t)})`);
+        g.addColorStop(1, "rgba(220,214,235,0)");
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fill();
       } else if (p.kind === "star") {
         ctx.fillStyle = p.color;
         const z = p.size * (1 - t * 0.6);
@@ -381,6 +400,16 @@ export function createJuice({ wallet, audio }) {
     flashEl.animate([{ opacity: strength * Math.min(1, s + 0.2) }, { opacity: 0 }], { duration: 420, easing: "ease-out" });
   }
 
+  /** RGB-split screen glitch for big moments. */
+  function glitch(ms = 360) {
+    if (!scale()) return;
+    const app = document.documentElement;
+    app.classList.remove("fx-glitch");
+    void app.offsetWidth;
+    app.classList.add("fx-glitch");
+    clearTimeout(glitch.t);
+    glitch.t = setTimeout(() => app.classList.remove("fx-glitch"), ms);
+  }
   function pop(node, cls = "fx-pop") {
     if (!node) return;
     node.classList.remove(cls);
@@ -487,6 +516,7 @@ export function createJuice({ wallet, audio }) {
     if (tier !== shownTier) {
       const up = tier > shownTier;
       shownTier = tier;
+      emit("tier", { tier, name: hypeTiers[tier].name, up });
       if (up && tier >= 2) {
         banner({
           kicker: "HYPE METER",
@@ -540,6 +570,7 @@ export function createJuice({ wallet, audio }) {
       level++;
       const reward = levelReward(level);
       wallet.earn(reward, `Level ${level} reached`);
+      emit("levelup", { level, reward });
       banner({ kicker: "LEVEL UP", title: "LEVEL " + level, amount: reward, sub: "The house respects your commitment", tone: "cyan", sound: "levelup", duration: 2200 });
       const ring = document.querySelector(".hud-level");
       burst(ring, { kind: "star", count: 26, colors: ["#7df9ff", "#fff", "#c38bff"] });
@@ -633,6 +664,7 @@ export function createJuice({ wallet, audio }) {
     float(at, "+" + total.toLocaleString("en-US"), { tone: tierName === "push" ? "push" : "gain", size: tierName === "nice" || tierName === "push" ? 30 : 44 });
     if (bonus) float(at, `HYPE ×${mult}`, { tone: "bonus", dy: 40 });
     coinsTo(from, total);
+    emit("win", { amount: total, tier: tierName, source: label, bonus });
     const heatGain = { push: 2, nice: 7, big: 16, mega: 28, jackpot: 45 }[tierName] || 3;
     hype(heatGain);
     xp(Math.sqrt(total) * 2);
@@ -650,6 +682,7 @@ export function createJuice({ wallet, audio }) {
     burst(at, { kind: "coin", count: tierName === "big" ? 22 : 50, speed: 1.2 });
     burst(at, { kind: "confetti", count: tierName === "big" ? 50 : 140, speed: 1.3 });
     shake(tierName === "big" ? 0.45 : 0.8);
+    glitch(tierName === "big" ? 220 : 520);
     flash(tierName === "jackpot" ? "#fff3b0" : "#ffd166", tierName === "big" ? 0.18 : 0.4);
     const titles = { big: "BIG WIN", mega: "MEGA WIN", jackpot: "JACKPOT" };
     banner({
@@ -670,8 +703,9 @@ export function createJuice({ wallet, audio }) {
     }
     return bonus;
   }
-  function loss(from, amount) {
+  function loss(from, amount, source = "") {
     if (amount) float(from, "−" + amount.toLocaleString("en-US"), { tone: "loss", size: 22 });
+    emit("loss", { amount, source });
     hype(1.5);
   }
   function spend(amount) {
@@ -726,6 +760,8 @@ export function createJuice({ wallet, audio }) {
 
   return {
     enabled: true,
+    glitch,
+    emit,
     burst,
     coinsTo,
     shake,

@@ -59,11 +59,11 @@
   text-align: left;
   color: #fff;
   background: #29273e;
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   box-shadow:
     inset 0 0 0 2px #7df9ff66,
-    0 6px 0 var(--pi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   cursor: pointer;
   transition:
     transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1),
@@ -73,12 +73,12 @@
   transform: translateY(-5px);
   box-shadow:
     inset 0 0 0 2px var(--pc),
-    0 11px 0 var(--pi),
+    0 16px 34px -14px rgba(0, 0, 0, 0.9),
     0 0 28px #7df9ff55;
 }
 .pond-card:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--pi);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .pond-card-art,
 .pond-card::after,
@@ -124,11 +124,11 @@
   align-self: flex-start;
   padding: 5px 8px;
   background: var(--pc);
-  border: 2px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
-  box-shadow: 0 3px 0 var(--pi);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
   color: var(--pi);
-  font: 700 10px/1 var(--ppx);
+  font: 400 10px/1 var(--mono);
   letter-spacing: 0.05em;
   rotate: -3deg;
 }
@@ -165,16 +165,16 @@
   display: block;
 }
 .pond-card-caption strong {
-  font: 700 18px/1.05 var(--pch);
+  font: italic 900 18px/1.05 var(--display);
   text-shadow:
-    2px 2px 0 var(--pi),
+    0 2px 12px rgba(0, 0, 0, 0.7),
     0 0 14px #7df9ff66;
 }
 .pond-card-caption small {
   margin-top: 6px;
   color: var(--pc);
-  font: 400 10px/1.25 var(--ppx);
-  text-shadow: 1px 1px 0 var(--pi);
+  font: 400 10px/1.25 var(--mono);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .pond-card-arrow {
   display: grid;
@@ -182,10 +182,10 @@
   flex: 0 0 38px;
   height: 38px;
   color: var(--pi);
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 9px;
   background: var(--pc);
-  box-shadow: 0 4px 0 var(--pi);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .pond-card:hover .pond-card-arrow {
   animation: pond-arrow 0.5s ease-in-out infinite alternate;
@@ -230,14 +230,14 @@
   max-width: 100%;
 }
 .pond-tabs button {
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-bottom: 0;
   border-radius: 10px 10px 0 0;
   padding: 10px 16px 9px;
   cursor: pointer;
   color: #b7aed0;
   background: #1b1030;
-  font: 700 12px/1 var(--ppx);
+  font: 400 12px/1 var(--mono);
   text-transform: uppercase;
   transition: transform 0.12s;
 }
@@ -267,13 +267,13 @@
   isolation: isolate;
   width: 100%;
   aspect-ratio: 320/120;
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   overflow: hidden;
   background: #171824;
   border-radius: 16px;
   box-shadow:
     inset 0 0 0 2px #7df9ff88,
-    0 6px 0 var(--pi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 40px #7df9ff22;
 }
 .pond-scene::after {
@@ -298,7 +298,7 @@
   box-shadow:
     inset 0 0 0 3px var(--ph),
     inset 0 0 60px #ff3d9a55,
-    0 6px 0 var(--pi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 40px #ff3d9a77;
   animation: pond-alarm 0.25s steps(2) infinite;
 }
@@ -338,17 +338,15 @@
   left: 64.4%;
   bottom: 30%;
   translate: -50% 0;
-  border: 4px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
   background: var(--ph);
   color: #fff;
   padding: 6px 14px 8px;
   box-shadow:
-    0 5px 0 var(--pi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 30px var(--ph);
-  font: 900 clamp(20px, 4vw, 44px) / 1 var(--pbig);
-  -webkit-text-stroke: 2px var(--pi);
-  paint-order: stroke fill;
+  font: italic 900 clamp(20px, 4vw, 44px) / 1 var(--display);
   animation: pond-badge 0.3s ease-in-out infinite alternate;
 }
 
@@ -362,19 +360,19 @@
   min-height: 64px;
   padding: 12px 12px 12px 18px;
   background: #1b1030;
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   box-shadow:
     inset 0 0 0 2px #7a3cff55,
-    0 5px 0 var(--pi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .pond-state {
   display: grid;
   gap: 6px;
 }
 .pond-state b {
-  font: 700 18px/1.1 var(--ppx);
-  text-shadow: 2px 2px 0 var(--pi);
+  font: 400 18px/1.1 var(--mono);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .phase-bite ~ .pond-controls .pond-state b {
   color: var(--ph);
@@ -382,7 +380,7 @@
 .pond-hint,
 .pond-description {
   margin: 0;
-  font: 400 11px/1.5 var(--ppx);
+  font: 400 11px/1.5 var(--mono);
   color: #c9bde6;
 }
 .pond-window .pond-action {
@@ -392,12 +390,12 @@
   cursor: pointer;
 }
 .pond-window .pond-action:not(.g-btn) {
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
   background: var(--pl);
-  box-shadow: 0 5px 0 var(--pi);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
   color: var(--pi);
-  font: 700 16px/1.15 var(--ppx);
+  font: 400 16px/1.15 var(--mono);
 }
 .pond-window .pond-action.hot {
   animation: pond-badge 0.3s ease-in-out infinite alternate;
@@ -410,14 +408,14 @@
   gap: 14px;
   margin-top: 16px;
   color: var(--pv);
-  font: 700 13px/1.3 var(--ppx);
-  text-shadow: 2px 2px 0 var(--pi);
+  font: 400 13px/1.3 var(--mono);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .pond-rail {
   position: relative;
   height: 38px;
   flex: 1;
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
   overflow: visible;
   background:
@@ -425,7 +423,7 @@
     linear-gradient(180deg, #3a1530, #1d0b1a);
   box-shadow:
     inset 0 0 0 2px #ff4d6d55,
-    0 4px 0 var(--pi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .pond-safe {
   position: absolute;
@@ -446,7 +444,7 @@
   bottom: -10px;
   width: 10px;
   transform: translateX(-50%);
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 4px;
   background: var(--pv);
   box-shadow: 0 0 14px var(--pv);
@@ -474,7 +472,7 @@
   place-content: center;
   width: clamp(90px, 28%, 170px);
   aspect-ratio: 1.3;
-  border: 4px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
   background: radial-gradient(
     ellipse closest-side,
@@ -483,7 +481,7 @@
   );
   box-shadow:
     inset 0 0 0 3px var(--tier),
-    0 6px 0 var(--pi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 34px color-mix(in srgb, var(--tier) 60%, transparent);
   flex-shrink: 0;
 }
@@ -498,7 +496,7 @@
 }
 .pond-reveal-sprite .pond-sprite {
   width: clamp(80px, 19vw, 150px);
-  filter: drop-shadow(3px 4px 0 var(--pi));
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.7));
   animation:
     pond-arrive 0.45s cubic-bezier(0.2, 1.8, 0.4, 1) both,
     pond-float-fish 1.6s 0.45s ease-in-out infinite alternate;
@@ -511,20 +509,18 @@
   width: fit-content;
   margin-bottom: 8px;
   padding: 4px 8px;
-  border: 2px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
   background: var(--tier);
   color: var(--pi);
-  font: 700 11px/1.4 var(--ppx);
+  font: 400 11px/1.4 var(--mono);
   text-transform: uppercase;
 }
 .pond-reveal strong {
-  font: 900 clamp(26px, 4.6vw, 54px) / 0.95 var(--pbig);
+  font: italic 900 clamp(26px, 4.6vw, 54px) / 0.95 var(--display);
   color: #fff;
-  -webkit-text-stroke: 2px var(--pi);
-  paint-order: stroke fill;
   text-shadow:
-    0 4px 0 var(--pi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 20px color-mix(in srgb, var(--tier) 70%, transparent);
   text-wrap: balance;
 }
@@ -545,18 +541,18 @@
   gap: 8px;
   padding: 14px 18px;
   margin-bottom: 12px;
-  font: 700 12px/1.2 var(--ppx);
+  font: 400 12px/1.2 var(--mono);
   color: #c9bde6;
   background: #1b1030;
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   box-shadow:
     inset 0 0 0 2px #7df9ff55,
-    0 5px 0 var(--pi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .pond-book-head b {
   color: var(--pc);
-  font: 900 28px/1 var(--pbig);
+  font: italic 900 28px/1 var(--display);
 }
 .pond-species {
   display: grid;
@@ -573,7 +569,7 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border: 3px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
   background: linear-gradient(
     90deg,
@@ -582,24 +578,24 @@
   );
   box-shadow:
     inset 0 0 0 2px color-mix(in srgb, var(--tier) 50%, transparent),
-    0 4px 0 var(--pi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .pond-species li .pond-sprite {
   width: 56px;
-  filter: drop-shadow(2px 2px 0 var(--pi));
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.7));
 }
 .pond-species b,
 .pond-species small {
   display: block;
 }
 .pond-species b {
-  font: 700 15px/1.15 var(--pch);
+  font: italic 900 15px/1.15 var(--display);
 }
 .pond-species small,
 .pond-rarity {
   margin-top: 3px;
   color: #b7aed0;
-  font: 400 9px/1.3 var(--ppx);
+  font: 400 9px/1.3 var(--mono);
 }
 .pond-silhouette {
   filter: brightness(0) invert(0.3) !important;
@@ -609,7 +605,7 @@
   background: #120a20 !important;
   box-shadow:
     inset 0 0 0 2px #ffffff12,
-    0 4px 0 var(--pi) !important;
+    0 12px 30px -14px rgba(0, 0, 0, 0.9) !important;
 }
 .pond-unseen b {
   color: #6f6787;
@@ -617,7 +613,7 @@
 .pond-rarity {
   margin-left: auto;
   padding: 3px 6px;
-  border: 2px solid var(--pi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 5px;
   background: var(--tier);
   color: var(--pi);
@@ -677,7 +673,7 @@
     box-shadow:
       inset 0 0 0 3px var(--pv),
       inset 0 0 60px #ffe06644,
-      0 6px 0 var(--pi),
+      0 12px 30px -14px rgba(0, 0, 0, 0.9),
       0 0 40px #ffe06666;
   }
 }
@@ -726,4 +722,90 @@
   .pond-card:hover .pond-card-arrow {
     animation: none;
   }
+}
+
+/* ==========================================================================
+   NEW LOOK — compact side-rail row + glass scene
+   ========================================================================== */
+.pond-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  height: auto;
+  padding: 2px 10px 2px 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(25, 240, 255, 0.18), rgba(255, 255, 255, 0.03) 60%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+  text-align: left;
+  aspect-ratio: auto;
+}
+.pond-card:hover {
+  transform: translateX(-4px);
+  border-color: var(--cyan);
+  box-shadow: 0 0 26px -4px var(--cyan);
+}
+.pond-card-art {
+  position: relative;
+  inset: auto;
+  width: 64px;
+  height: 62px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: 70% 50%;
+  transform: none;
+}
+.pond-card::after,
+.pond-card-tag {
+  display: none;
+}
+.pond-card-caption {
+  position: static;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  background: none;
+}
+.pond-card-caption > span {
+  flex: 1;
+  min-width: 0;
+}
+.pond-card-caption strong {
+  display: block;
+  font: italic 900 23px/0.95 var(--display);
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pond-card-caption small {
+  font: 400 10px/1.2 var(--mono);
+  color: var(--dim);
+}
+.pond-card-arrow {
+  flex: none;
+  width: auto;
+  height: auto;
+  padding: 3px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  color: #fff;
+  font: 400 11px/1 var(--mono);
+  animation: none;
+}
+.pond-card:hover .pond-card-arrow {
+  background: var(--cyan);
+  color: #000;
+}
+.pond-window .g-btn {
+  font: italic 900 24px/1 var(--display);
+  letter-spacing: 0.05em;
 }

@@ -41,12 +41,12 @@
   appearance: none;
   color: #fff;
   background: linear-gradient(180deg, #24163d, #140b24);
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   cursor: pointer;
   box-shadow:
     inset 0 0 0 2px color-mix(in srgb, var(--fl-accent) 70%, transparent),
-    0 6px 0 var(--fi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   transition:
     transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1),
     box-shadow 0.18s;
@@ -56,14 +56,14 @@
   transform: translateY(-6px) rotate(-0.6deg);
   box-shadow:
     inset 0 0 0 2px var(--fl-accent),
-    0 12px 0 var(--fi),
+    0 16px 34px -14px rgba(0, 0, 0, 0.9),
     0 0 30px color-mix(in srgb, var(--fl-accent) 60%, transparent);
 }
 .fl-cabinet:active {
   transform: translateY(2px);
   box-shadow:
     inset 0 0 0 2px var(--fl-accent),
-    0 2px 0 var(--fi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .fl-cover {
   display: block;
@@ -72,7 +72,7 @@
   aspect-ratio: 288 / 104;
   object-fit: cover;
   image-rendering: pixelated;
-  border-bottom: 3px solid var(--fi);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   transition: transform 0.3s;
 }
 .fl-cabinet:hover .fl-cover {
@@ -116,13 +116,13 @@
   gap: 5px;
 }
 .fl-card-details strong {
-  font: 700 clamp(13px, 1.15vw, 17px) / 1.1 var(--fchunk);
+  font: italic 900 clamp(13px, 1.15vw, 17px) / 1.1 var(--display);
   letter-spacing: 0.01em;
-  text-shadow: 2px 2px 0 var(--fi);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .fl-genre {
   color: var(--fl-accent);
-  font: 400 10px/1.2 var(--fpix);
+  font: 400 10px/1.2 var(--mono);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -132,12 +132,12 @@
   width: 38px;
   height: 38px;
   flex: none;
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 9px;
   background: var(--fl-accent);
   color: var(--fi);
-  box-shadow: 0 4px 0 var(--fi);
-  font: 700 18px/1 var(--fpix);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
+  font: 400 18px/1 var(--mono);
 }
 .fl-cabinet:hover .fl-arrow {
   animation: fl-bob 0.5s ease-in-out infinite alternate;
@@ -165,17 +165,17 @@
 }
 .fl-label {
   display: block;
-  font: 700 12px/1.2 var(--fpix);
+  font: 400 12px/1.2 var(--mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--fc);
-  text-shadow: 2px 2px 0 var(--fi);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .fl-game p.fl-rules {
   margin: 0;
   padding: 10px 14px;
   color: #d8ccff;
-  font: 400 12px/1.6 var(--fpix);
+  font: 400 12px/1.6 var(--mono);
   border: 3px dashed #ffffff1f;
   border-radius: 10px;
   background: #ffffff06;
@@ -212,12 +212,12 @@
     #0f3d22 60%,
     #0a2a17 100%
   );
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   box-shadow:
     inset 0 0 0 2px #2fbf7155,
     inset 0 8px 20px #0007,
-    0 5px 0 var(--fi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .fl-wager .fl-label {
   color: var(--fv);
@@ -234,21 +234,21 @@
   height: 58px;
   padding: 0;
   border-radius: 50%;
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   color: #fff;
-  font: 900 19px/1 var(--fbig);
+  font: italic 900 19px/1 var(--display);
   letter-spacing: 0.02em;
   text-shadow:
-    -1px -1px 0 var(--fi),
-    1px -1px 0 var(--fi),
-    -1px 1px 0 var(--fi),
-    0 2px 0 var(--fi);
+    0 2px 12px rgba(0, 0, 0, 0.7),
+    0 2px 12px rgba(0, 0, 0, 0.7),
+    0 2px 12px rgba(0, 0, 0, 0.7),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   background:
     radial-gradient(circle, var(--c) 0 46%, #ffffffd0 47% 50%, transparent 51%),
     repeating-conic-gradient(#fff 0 14deg, var(--c) 14deg 45deg);
   box-shadow:
-    inset 0 0 0 3px #0004,
-    0 5px 0 var(--fi);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08)4,
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   transition:
     transform 0.16s cubic-bezier(0.3, 1.8, 0.5, 1),
     box-shadow 0.16s,
@@ -272,14 +272,14 @@
 .fl-host .fl-stake[aria-pressed="true"] {
   transform: translateY(-9px) scale(1.14);
   box-shadow:
-    inset 0 0 0 3px #0004,
-    0 13px 0 var(--fi),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08)4,
+    0 16px 34px -14px rgba(0, 0, 0, 0.9),
     0 0 0 3px var(--fv),
     0 0 26px var(--fv);
 }
 .fl-host .fl-stake:active:enabled {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--fi);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .fl-host .fl-stake:disabled:not([aria-pressed="true"]) {
   filter: grayscale(0.8) brightness(0.6);
@@ -294,10 +294,10 @@
 .fl-host .fl-action:not(.g-btn) {
   background: var(--fl-accent);
   color: var(--fi);
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
-  box-shadow: 0 5px 0 var(--fi);
-  font: 700 18px/1 var(--fpix);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
+  font: 400 18px/1 var(--mono);
 }
 .fl-host .fl-primary:disabled {
   filter: saturate(0.4) brightness(0.8);
@@ -317,17 +317,17 @@
   gap: 6px;
   padding: 14px 18px 14px 68px;
   color: #e6dcff;
-  font: 400 12px/1.5 var(--fpix);
+  font: 400 12px/1.5 var(--mono);
   background: linear-gradient(
     90deg,
     color-mix(in srgb, var(--rc) 22%, #140b24),
     #140b24 70%
   );
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
   box-shadow:
     inset 0 0 0 2px color-mix(in srgb, var(--rc) 60%, transparent),
-    0 5px 0 var(--fi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   animation: fl-plate-in 0.4s cubic-bezier(0.2, 1.6, 0.4, 1);
 }
 .fl-receipt::before {
@@ -340,20 +340,20 @@
   height: 40px;
   display: grid;
   place-items: center;
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 50%;
   background: var(--rc);
   color: var(--fi);
-  font: 700 20px/1 var(--fpix);
-  box-shadow: 0 3px 0 var(--fi);
+  font: 400 20px/1 var(--mono);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .fl-receipt[hidden] {
   display: none;
 }
 .fl-receipt strong {
   color: var(--rc);
-  font: 700 17px/1.1 var(--fpix);
-  text-shadow: 2px 2px 0 var(--fi);
+  font: 400 17px/1.1 var(--mono);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .fl-receipt.win {
   --rc: var(--fl);
@@ -381,11 +381,11 @@
   isolation: isolate;
   position: relative;
   overflow: hidden;
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
   box-shadow:
     inset 0 0 0 2px color-mix(in srgb, var(--fl-accent) 70%, transparent),
-    0 6px 0 var(--fi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 
 /* ---------- Merge Conflict ---------- */
@@ -416,12 +416,12 @@
   height: 212px;
   color: var(--fi);
   background: linear-gradient(160deg, #fffaf0, #ffe6c2);
-  border: 4px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   box-shadow:
     inset 0 0 0 4px #fff,
     inset 0 0 0 7px color-mix(in srgb, var(--fl-accent) 80%, transparent),
-    0 8px 0 var(--fi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 30px #ff977f55;
   rotate: -4deg;
   animation: fl-card-idle 2.4s ease-in-out infinite alternate;
@@ -441,7 +441,7 @@
   left: 0;
   right: 0;
   text-align: center;
-  font: 700 11px/1 var(--fpix);
+  font: 400 11px/1 var(--mono);
   letter-spacing: 0.08em;
 }
 .fl-card-index {
@@ -454,7 +454,7 @@
   font-size: 9px;
 }
 .fl-revision b {
-  font: 900 104px/1 var(--fbig);
+  font: italic 900 104px/1 var(--display);
   letter-spacing: -0.03em;
   color: var(--fi);
   text-shadow: 4px 4px 0 #ff977f;
@@ -467,20 +467,18 @@
   );
   box-shadow:
     inset 0 0 0 4px #fff,
-    inset 0 0 0 8px var(--fi),
-    0 8px 0 var(--fi),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 34px #ff3d9a88;
 }
 .fl-revision.hidden-card .fl-card-index,
 .fl-revision.hidden-card .fl-rev-bottom {
   color: #fff;
-  text-shadow: 2px 2px 0 var(--fi);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .fl-revision.hidden-card b {
   color: #fff;
-  -webkit-text-stroke: 3px var(--fi);
-  paint-order: stroke fill;
-  text-shadow: 0 6px 0 var(--fi);
+  text-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
   animation: fl-q 0.9s ease-in-out infinite alternate;
 }
 @keyframes fl-q {
@@ -494,7 +492,7 @@
   place-items: center;
   width: 70px;
   height: 70px;
-  border: 4px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 50%;
   background: radial-gradient(
     circle at 35% 30%,
@@ -505,7 +503,7 @@
   color: var(--fi);
   font: italic 900 30px/1 var(--fbig);
   box-shadow:
-    0 5px 0 var(--fi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 30px #ffb703;
   animation: fl-vs 0.8s ease-in-out infinite alternate;
 }
@@ -527,10 +525,10 @@
   padding: 12px 16px;
 }
 .fl-direction strong {
-  font: 700 24px/1 var(--fpix);
+  font: 400 24px/1 var(--mono);
 }
 .fl-direction span {
-  font: 400 11px/1 var(--fpix);
+  font: 400 11px/1 var(--mono);
   opacity: 0.85;
 }
 
@@ -551,7 +549,7 @@
   aspect-ratio: 1;
   position: relative;
   justify-self: center;
-  filter: drop-shadow(0 8px 0 var(--fi)) drop-shadow(0 0 24px #bb9eff66);
+  filter: drop-shadow(0 12px 30px -14px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 24px #bb9eff66);
 }
 .fl-wheel-wrap::before {
   /* bulb ring */
@@ -575,9 +573,9 @@
   position: absolute;
   inset: 12px;
   border: 8px solid #2b1a3f;
-  outline: 4px solid var(--fi);
+  outline: 0;
   box-shadow:
-    inset 0 0 0 4px var(--fi),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
     inset 0 0 0 7px #ffffff55;
   border-radius: 50%;
   transition: transform 1.45s cubic-bezier(0.14, 0.55, 0.14, 1);
@@ -586,7 +584,7 @@
   content: "";
   position: absolute;
   inset: 27%;
-  border: 4px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 50%;
   background: radial-gradient(circle, #3a2557, #1b1030);
   box-shadow: inset 0 0 0 4px #bb9eff55;
@@ -595,7 +593,7 @@
   position: absolute;
   z-index: 1;
   color: var(--fi);
-  font: 700 15px/1 var(--fpix);
+  font: 400 15px/1 var(--mono);
   text-shadow: 1px 1px 0 #fff8;
 }
 .fl-wheel-cap {
@@ -606,14 +604,14 @@
   width: 26%;
   height: 26%;
   transform: translate(-50%, -50%);
-  border: 4px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow:
     inset 0 4px 0 #fff8,
-    0 4px 0 var(--fi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   display: grid;
   place-items: center;
   color: var(--fi);
-  font: 900 34px/1 var(--fbig);
+  font: italic 900 34px/1 var(--display);
   background: radial-gradient(
     circle at 35% 30%,
     #fff2a8,
@@ -663,11 +661,11 @@
     #1b1030
   );
   color: #fff;
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
   box-shadow:
     inset 0 0 0 2px color-mix(in srgb, var(--suspect) 40%, transparent),
-    0 4px 0 var(--fi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   transition:
     transform 0.14s cubic-bezier(0.3, 1.8, 0.5, 1),
     box-shadow 0.14s;
@@ -676,7 +674,7 @@
   width: 30px;
   height: 30px;
   flex-shrink: 0;
-  border: 3px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
   background: var(--suspect);
   box-shadow: inset 0 -4px 0 #0003;
@@ -700,7 +698,7 @@
   transform: translateX(8px) scale(1.03);
   box-shadow:
     inset 0 0 0 3px var(--suspect),
-    0 4px 0 var(--fi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 22px color-mix(in srgb, var(--suspect) 70%, transparent);
 }
 .fl-host .fl-suspect[aria-pressed="true"] b::after {
@@ -743,13 +741,11 @@
 .fl-telemetry strong {
   display: block;
   margin-top: 6px;
-  font: 900 clamp(52px, 7vw, 92px) / 0.9 var(--fbig);
+  font: italic 900 clamp(52px, 7vw, 92px) / 0.9 var(--display);
   letter-spacing: 0.01em;
   color: var(--fv);
-  -webkit-text-stroke: 3px var(--fi);
-  paint-order: stroke fill;
   text-shadow:
-    0 5px 0 var(--fi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 26px #ffb70399;
   font-variant-numeric: tabular-nums;
   transform-origin: left top;
@@ -761,11 +757,11 @@
   right: 16px;
   top: 16px;
   padding: 6px 9px;
-  border: 2px solid var(--fi);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
   background: #000a;
   color: var(--fl);
-  font: 700 12px/1.2 var(--fpix);
+  font: 400 12px/1.2 var(--mono);
 }
 .fl-flight-stage.fl-live {
   box-shadow:
@@ -773,7 +769,7 @@
       color-mix(in srgb, var(--fh) calc(var(--k) * 100%), var(--fv)),
     inset 0 0 calc(var(--k) * 80px)
       color-mix(in srgb, var(--fh) calc(var(--k) * 70%), transparent),
-    0 6px 0 var(--fi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 calc(var(--k) * 60px)
       color-mix(in srgb, var(--fh) calc(var(--k) * 100%), #ffd166);
 }
@@ -781,7 +777,7 @@
   transform: scale(calc(1 + var(--k) * 0.55)) rotate(calc(var(--k) * -3deg));
   color: color-mix(in srgb, #ff6fb5 calc(var(--k) * 100%), var(--fv));
   text-shadow:
-    0 5px 0 var(--fi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 calc(18px + var(--k) * 36px) currentColor;
 }
 .fl-live .fl-telemetry .fl-label::after {
@@ -793,12 +789,12 @@
   box-shadow:
     inset 0 0 0 2px var(--fr),
     inset 0 0 50px #ff4d1f55,
-    0 6px 0 var(--fi);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .fl-down .fl-telemetry strong {
   color: var(--fr);
   text-shadow:
-    0 5px 0 var(--fi),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 22px var(--fr);
 }
 
@@ -826,18 +822,18 @@
   background: var(--fi);
   border: 3px solid #ff977f;
   box-shadow:
-    0 4px 0 #000,
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 16px #ff977f66;
   color: #fff;
   rotate: 4deg;
 }
 .fl-streak small {
-  font: 700 10px/1 var(--fpix);
+  font: 400 10px/1 var(--mono);
   letter-spacing: 0.1em;
   color: #ff977f;
 }
 .fl-streak b {
-  font: 900 36px/1 var(--fbig);
+  font: italic 900 36px/1 var(--display);
 }
 .fl-streak[data-heat="1"] {
   border-color: var(--fv);
@@ -876,12 +872,12 @@
   }
 }
 .fl-wheel-tension {
-  filter: drop-shadow(0 8px 0 var(--fi)) drop-shadow(0 0 24px #bb9eff);
+  filter: drop-shadow(0 12px 30px -14px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 24px #bb9eff);
   animation: fl-tension 0.2s ease-in-out infinite alternate;
 }
 @keyframes fl-tension {
   to {
-    filter: drop-shadow(0 8px 0 var(--fi)) drop-shadow(0 0 44px #ff3d9a);
+    filter: drop-shadow(0 12px 30px -14px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 44px #ff3d9a);
   }
 }
 .fl-wheel-land {
@@ -947,7 +943,7 @@
     min-height: 70px;
     max-height: 90px;
     border-bottom: 0;
-    border-right: 3px solid var(--fi);
+    border-right: 1px solid rgba(255, 255, 255, 0.14);
   }
   .fl-roulette-stage {
     grid-template-columns: 1fr;
@@ -1011,4 +1007,229 @@
   .fl-host .fl-primary:disabled {
     animation: none;
   }
+}
+
+/* ==========================================================================
+   NEW LOOK — club / casino / hyperpop. Overrides the cartoon skin above.
+   ========================================================================== */
+/* side-rail rows */
+.fl-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+.fl-cabinet {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 2px 10px 2px 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--fl-accent) 22%, transparent), rgba(255, 255, 255, 0.03) 60%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+.fl-cabinet:hover,
+.fl-cabinet:focus-visible {
+  transform: translateX(-4px);
+  border-color: var(--fl-accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 26px -4px var(--fl-accent);
+}
+.fl-cover {
+  width: 64px;
+  height: 62px;
+  border-radius: 10px;
+  object-fit: cover;
+  object-position: center;
+}
+.fl-card-foot {
+  padding: 0;
+  border: 0;
+  background: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fl-card-details {
+  flex: 1;
+  min-width: 0;
+}
+.fl-card-details strong {
+  display: block;
+  font: italic 900 23px/0.95 var(--display);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fl-genre {
+  font: 400 10px/1.2 var(--mono);
+  color: var(--dim);
+  letter-spacing: 0.06em;
+}
+.fl-arrow {
+  flex: none;
+  width: auto;
+  height: auto;
+  padding: 3px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+  color: #fff;
+  font: 400 11px/1 var(--mono);
+  animation: none;
+  transform: none;
+}
+.fl-cabinet:hover .fl-arrow {
+  background: var(--fl-accent);
+  color: #000;
+  animation: none;
+}
+
+/* scenes: black glass and neon instead of cartoon purple */
+.fl-host {
+  font-family: var(--mono);
+}
+.fl-merge-stage,
+.fl-roulette-stage,
+.fl-flight-stage {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 80px rgba(124, 58, 255, 0.25),
+    0 20px 60px -20px #000;
+}
+.fl-roulette-stage {
+  background:
+    radial-gradient(ellipse at 28% 55%, rgba(255, 43, 214, 0.35), transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(25, 240, 255, 0.2), transparent 55%),
+    #0b0614;
+}
+.fl-label {
+  font: 400 11px/1 var(--mono);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.fl-game p.fl-rules {
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.03);
+  font: 400 12px/1.5 var(--mono);
+  color: var(--dim);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.fl-wager {
+  border: 1px solid rgba(182, 255, 46, 0.3);
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(25, 211, 107, 0.35), transparent 70%),
+    #06140c;
+  box-shadow: inset 0 0 40px rgba(25, 211, 107, 0.2);
+}
+.fl-revision {
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.4),
+    0 24px 50px -16px #000,
+    0 0 40px -8px var(--pink);
+}
+.fl-revision b {
+  font-style: italic;
+}
+.fl-vs {
+  font-family: var(--display);
+  font-style: italic;
+  box-shadow: 0 0 30px var(--yellow);
+}
+.fl-host .fl-suspect {
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.fl-host .fl-suspect b {
+  font: italic 900 20px/1 var(--display);
+  text-transform: uppercase;
+}
+.fl-host .fl-suspect[aria-pressed="true"] {
+  border-color: var(--yellow);
+  background: linear-gradient(90deg, rgba(255, 229, 0, 0.2), rgba(255, 122, 0, 0.08));
+  box-shadow: 0 0 26px -4px var(--yellow);
+}
+.fl-wheel {
+  border-color: #140a24;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.35),
+    0 0 50px rgba(255, 43, 214, 0.5);
+}
+.fl-sector {
+  font: italic 900 18px/1 var(--display);
+  color: #07040d;
+  text-shadow: none;
+}
+.fl-flight-stage {
+  background:
+    linear-gradient(180deg, rgba(25, 240, 255, 0.08), transparent 40%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 4px),
+    #05070d;
+}
+.fl-telemetry strong {
+  font: italic 900 clamp(64px, 9vw, 120px) / 0.9 var(--display);
+  color: #fff;
+  text-shadow:
+    0 0 20px var(--cyan),
+    0 0 50px rgba(25, 240, 255, 0.5);
+}
+.fl-live .fl-telemetry strong {
+  color: var(--lime);
+  text-shadow:
+    0 0 20px var(--lime),
+    0 0 60px rgba(182, 255, 46, 0.6);
+}
+.fl-down .fl-telemetry strong {
+  color: var(--red);
+  text-shadow:
+    0 0 20px var(--red),
+    0 0 60px rgba(255, 46, 85, 0.7);
+}
+.fl-receipt {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  font: 400 13px/1.4 var(--mono);
+}
+.fl-receipt strong {
+  font: italic 900 30px/1 var(--display);
+  text-transform: uppercase;
+}
+.fl-receipt.win {
+  border-color: var(--lime);
+  background: linear-gradient(90deg, rgba(182, 255, 46, 0.18), transparent);
+  box-shadow: 0 0 34px -6px var(--lime);
+}
+.fl-receipt.loss {
+  border-color: var(--red);
+  background: linear-gradient(90deg, rgba(255, 46, 85, 0.2), transparent);
+  box-shadow: 0 0 34px -6px var(--red);
+}
+.fl-streak {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--pink), var(--orange));
+  font: italic 900 16px/1 var(--display);
+  box-shadow: 0 0 20px var(--pink);
+}
+.fl-host .fl-action,
+.fl-host .fl-action strong,
+.fl-direction strong {
+  font: italic 900 26px/1 var(--display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.fl-direction span {
+  font: 400 10px/1 var(--mono);
+  letter-spacing: 0.12em;
 }

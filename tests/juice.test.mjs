@@ -66,3 +66,20 @@ test("machines run silently when the engine is absent", () => {
   const real = { enabled: true };
   assert.equal(juiceOf({ juice: real }), real);
 });
+
+import { colorOf, settle, spinPocket, wheelOrder } from "../src/allin.js";
+
+test("the all-in wheel is a fair European single-zero wheel", () => {
+  assert.equal(wheelOrder.length, 37);
+  assert.deepEqual([...wheelOrder].sort((a, b) => a - b), [...Array(37).keys()]);
+  const counts = { red: 0, black: 0, green: 0 };
+  for (const n of wheelOrder) counts[colorOf(n)]++;
+  assert.deepEqual(counts, { red: 18, black: 18, green: 1 });
+  assert.equal(settle("red", 32, 400), 800);
+  assert.equal(settle("red", 15, 400), 0);
+  assert.equal(settle("black", 0, 400), 0, "zero beats both colours");
+  for (let i = 0; i < 200; i++) {
+    const pocket = spinPocket();
+    assert.ok(Number.isInteger(pocket) && pocket >= 0 && pocket < 37);
+  }
+});

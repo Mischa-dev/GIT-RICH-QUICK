@@ -4,27 +4,24 @@
    ========================================================================== */
 :root {
   --heat: 0;
-  --hot: #ff3d9a;
-  --ice: #7df9ff;
-  --volt: #ffe066;
-  --violet: #7a3cff;
-  --lime: #a6ff8f;
-  --glow: color-mix(in srgb, var(--hot) calc(var(--heat) * 100%), var(--violet));
-  --bg: #0b0712;
+  --glow: color-mix(in srgb, #ff2bd6 calc(var(--heat) * 100%), #7c3aff);
+}
+html[data-tier="1"] {
+  --glow: #ffe500;
 }
 html[data-tier="2"] {
-  --glow: #ff8a3d;
+  --glow: #ff7a00;
 }
 html[data-tier="3"] {
-  --glow: #ff3d9a;
+  --glow: #ff2bd6;
 }
 html[data-tier="4"] {
-  --glow: #7df9ff;
+  --glow: #19f0ff;
 }
 
 /* ---------- room ---------- */
 body {
-  background: #07050d;
+  background: #06030c;
 }
 .backdrop {
   position: fixed;
@@ -32,7 +29,6 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: -2;
-  image-rendering: pixelated;
   pointer-events: none;
 }
 /* CRT: scanlines + vignette sit over the backdrop, under content. */
@@ -43,9 +39,8 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 85% 75% at 50% 45%, transparent 40%, #05030acc 100%),
-    repeating-linear-gradient(0deg, #0000 0 3px, #0000002e 3px 4px),
-    linear-gradient(#07050d99, #07050d55 40%, #07050dcc);
+    radial-gradient(ellipse 90% 80% at 50% 45%, transparent 45%, #05030ab3 100%),
+    repeating-linear-gradient(0deg, #0000 0 3px, #00000024 3px 4px);
 }
 .hud-hype-fill {
   display: block;
@@ -211,8 +206,8 @@ body::before {
 .fx-float {
   position: absolute;
   transform: translate(-50%, -50%);
-  font: 900 34px/1 var(--condensed);
-  letter-spacing: 0.5px;
+  font: italic 900 40px/1 var(--display);
+  letter-spacing: 0;
   white-space: nowrap;
   -webkit-text-stroke: 1.5px #2a1400;
   paint-order: stroke fill;
@@ -412,9 +407,9 @@ body::before {
 }
 .fx-banner-title {
   display: flex;
-  font: 700 min(180px, 12vw, calc(170vw / var(--len, 8))) / 0.9 var(--logo);
-  letter-spacing: 0;
-  transform: skew(-6deg);
+  font: italic 900 min(220px, 15vw, calc(200vw / var(--len, 8))) / 0.85 var(--display);
+  letter-spacing: -0.01em;
+  transform: skew(-4deg);
 }
 .fx-banner-title span {
   display: inline-block;
@@ -422,9 +417,8 @@ body::before {
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 10px var(--ink);
-  paint-order: stroke fill;
-  filter: drop-shadow(0 6px 0 #000) drop-shadow(0 0 28px var(--glowc));
+  filter: drop-shadow(-4px 0 0 rgba(255, 43, 214, 0.75)) drop-shadow(4px 0 0 rgba(25, 240, 255, 0.75))
+    drop-shadow(0 0 34px var(--glowc));
   animation: letter-in 0.5s cubic-bezier(0.2, 1.8, 0.4, 1) backwards;
   animation-delay: calc(var(--i) * 35ms);
 }
@@ -447,13 +441,11 @@ body::before {
   }
 }
 .fx-banner-amount {
-  font: 900 clamp(40px, 6vw, 84px) / 1 var(--condensed);
+  font: italic 900 clamp(44px, 7vw, 110px) / 1 var(--display);
   color: #fff;
-  -webkit-text-stroke: 2px #000;
-  paint-order: stroke fill;
   text-shadow:
-    0 4px 0 #000,
-    0 0 26px var(--glowc);
+    0 0 12px var(--glowc),
+    0 0 40px var(--glowc);
   font-variant-numeric: tabular-nums;
 }
 .fx-banner-amount:empty {
@@ -549,3 +541,110 @@ html[data-intensity="0"] .slot-cabinet::after {
   }
 }
 
+
+
+/* ==========================================================================
+   Beat sync. app.js toggles .kick / .snare / .hat on <html> in time with the
+   music (or a silent clock at the same tempo).
+   ========================================================================== */
+html[data-intensity="2"].kick .app {
+  animation: kick-punch 0.12s ease-out;
+}
+@keyframes kick-punch {
+  0% {
+    scale: calc(1 + 0.004 + var(--heat) * 0.008);
+  }
+}
+html.kick .g-panel,
+html.kick .ide {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 18px 50px -20px #000,
+    0 0 calc(18px + var(--heat) * 60px) -4px var(--glow);
+}
+html.kick .jackpot-value,
+html.kick .wallet-chip b,
+html.kick .hud-hype-mult {
+  filter: brightness(1.5);
+}
+html.snare .logo b,
+html.snare .panel-title span {
+  filter: brightness(1.6) saturate(1.4);
+}
+html.hat .topbar,
+html.hat .statusbar {
+  filter: hue-rotate(40deg) brightness(1.15);
+}
+
+/* RGB-split glitch on big moments. */
+html.fx-glitch .app {
+  animation: glitch-shift 0.09s steps(2) infinite;
+  filter: drop-shadow(-3px 0 0 rgba(255, 0, 90, 0.7)) drop-shadow(3px 0 0 rgba(0, 240, 255, 0.7));
+}
+@keyframes glitch-shift {
+  0% {
+    transform: translate(-3px, 1px) skewX(-1deg);
+  }
+  50% {
+    transform: translate(3px, -1px) skewX(1deg);
+  }
+}
+
+/* Vegas bulbs chasing around the IDE frame. Faster and wilder with hype. */
+.ide::before,
+.ide::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: -1;
+  --b: radial-gradient(circle, #fff 0 1.5px, var(--bulb, #ffcc33) 2px 2.6px, transparent 3.4px);
+  background:
+    var(--b) 0 0 / 16px 7px repeat-x,
+    var(--b) 0 100% / 16px 7px repeat-x,
+    var(--b) 0 0 / 7px 16px repeat-y,
+    var(--b) 100% 0 / 7px 16px repeat-y;
+  filter: drop-shadow(0 0 3px var(--bulb, #ffcc33));
+  animation: chase calc(0.9s - var(--heat) * 0.7s) steps(1) infinite;
+}
+.ide::after {
+  background-position:
+    8px 0,
+    8px 100%,
+    0 8px,
+    100% 8px;
+  animation-delay: calc(-0.45s + var(--heat) * 0.35s);
+}
+html[data-tier="3"] .ide,
+html[data-tier="4"] .ide {
+  --bulb: #ff2bd6;
+}
+html[data-tier="3"] .ide::before,
+html[data-tier="4"] .ide::before,
+html[data-tier="3"] .ide::after,
+html[data-tier="4"] .ide::after {
+  animation:
+    chase 0.14s steps(1) infinite,
+    hue 1.2s linear infinite;
+}
+html[data-intensity="0"] .ide::before,
+html[data-intensity="0"] .ide::after {
+  animation: none;
+}
+#sb-burn.hot {
+  color: var(--red);
+  text-shadow: 0 0 10px var(--red);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.kick .app,
+  html.fx-glitch .app,
+  .ide::before,
+  .ide::after {
+    animation: none !important;
+  }
+  html.hat .topbar,
+  html.hat .statusbar {
+    filter: none;
+  }
+}

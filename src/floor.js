@@ -905,7 +905,11 @@ export function initFloor(api) {
         node("strong", "", spec.title),
         node("span", "fl-genre", spec.genre),
       );
-      const arrow = node("span", "fl-arrow", "↗");
+      const arrow = node(
+        "kbd",
+        "fl-arrow",
+        { merge: "2", roulette: "3", deploy: "4" }[id] || "↗",
+      );
       arrow.setAttribute("aria-hidden", "true");
       foot.append(details, arrow);
       card.append(cover, foot);

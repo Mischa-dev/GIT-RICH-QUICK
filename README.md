@@ -10,32 +10,50 @@ Your coding agent bills by the step. Your branch needs one more commit. Finance 
 
 Run `npm start` and open **http://127.0.0.1:4173**. Node 22.13 or newer is enough. You start with 1,200 fake tokens. The game saves in your browser and serves its own art, pixel fonts and synth audio.
 
-Press start. Then try not to blink.
+Press any key. The agent's IDE takes the middle of the screen.
 
-### Controls
+### The loop
+
+1. **Pick a ticket and vibe at the agent.** Type a prompt (every keystroke throws sparks and builds a combo) and press Enter.
+2. **Watch it code.** VIBE-1 streams the patch into the editor and burns tokens on every step. Mash any letter key (or VIBE HARDER) to make it go faster. The tokens still burn.
+3. **It runs out of tokens right before the finish.** CONTINUE? 9… 8… 7…
+4. **Watch a brainrot ad.** The sponsor spot plays on top with a neon runner underneath and word-by-word captions.
+5. **ALL IN?** Put your whole balance on red or black (a real single-zero wheel). Win, and the agent resumes by itself.
+6. **SHIPPED.** The diff slams into the editor and the payout rains into your wallet. Pick the next ticket.
+
+### Slop skills
+
+Toggles under the prompt that do exactly what they say:
+
+- **AUTO-PROMPT** re-sends whatever's in its box every time the agent ships: ×1, ×3, ×10 or ∞.
+- **ULTRATHINK** costs 3× the tokens, is slower, and crits far more often.
+- **MAKE NO MISTAKES** is appended to your prompt. It costs a bit more and helps a bit.
+- **YOLO MODE** (`--dangerously-skip-permissions`) skips review for free and sometimes `rm -rf`s your progress back to Edit.
+- **FIX IT** shoves a running agent along for 15 tokens. It will tell you you're absolutely right.
+- **🙏 PRAY** costs 25 tokens and has a tiny chance to ship the run on the spot.
+
+### Everything else
+
+- **Everything moves on the beat.** The screen punches on the kick, strobes on the snare when it's hot, lasers sweep behind everything and bulbs chase around the IDE. Warm up and it starts raining coins.
+- **Hype meter.** Five tiers from COLD to TRANSCENDENT multiply wins up to ×2 and drive the lasers, colours and music.
+- **XP, levels and ranks.** Every level pays a token bonus.
+- **Side slot and side bets.** Commit Slots (third-reel anticipation, AUTO ×10, a progressive jackpot on 777), Merge Conflict, Blame Roulette, Deploy or Die, the Token Pond and Sponsor TV.
+- **Ledger** records every transaction. Print a PNG receipt when someone asks how you financed your code.
 
 | Key | Does |
 | --- | --- |
-| `Space` | Spin Commit Slots |
-| `1` | Agent Desk. While VIBE-1 codes, **mash any key** to make it code faster |
+| `A`–`Z` | Mash while the agent codes |
+| `Enter` | Send the prompt |
+| `Space` | Spin the side slot |
+| `1` | Focus the IDE |
 | `2` `3` `4` | Merge Conflict, Blame Roulette, Deploy or Die |
 | `5` `6` | Token Pond, Sponsor TV |
-| `L` | Ledger |
-| `Esc` | Back to the floor |
+| `9` | Ledger |
+| `Esc` | Close a scene |
 
-### The dopamine loop
+Open **Sound & FX** (the speaker button) for music, effects and visual intensity (Chill, Hyped, Feral). If your system asks for reduced motion, the shake, strobes, particles and backdrop motion turn off.
 
-- **Hype meter.** Every spin, catch, keystroke and merge heats the room. Five tiers from COLD to TRANSCENDENT multiply your wins by up to ×2. The synthwave floor speeds up, the music opens up, and at the top tier the stars go to warp. Stop playing and it cools off.
-- **XP and levels.** Everything you burn earns XP. Every level up pays a token bonus and gives you a new rank, from ROOKIE to THE HOUSE.
-- **Progressive jackpot.** Every slot wager feeds the pool, and it creeps up on its own. Hit 777 and you take all of it.
-- **Commit Slots.** Two matching reels hold the third back with a drumroll and a heartbeat. There's AUTO ×10, near-miss teasing, and win tiers from NICE to JACKPOT with slam banners and coins that fly into your wallet.
-- **Agent Desk.** Choose a mission card, then type your brief in *power mode*, where every keystroke throws sparks and builds a combo. Deploy and watch VIBE-1 type out the patch. Mash keys or VIBE HARDER to speed it up (the tokens still burn). Merges can crit for double.
-- **Merge Conflict, Blame Roulette, Deploy or Die, the Token Pond and Sponsor TV** all pay out through the same effects engine.
-- **Ledger** records every transaction. Print a PNG receipt when someone asks how you financed your code.
-
-Open **Sound & FX** (the speaker button) for music, effects and visual intensity (Chill, Hyped, Feral). If your system asks for reduced motion, the screen shake, particles and backdrop motion turn off.
-
-Direct links skip the title screen: `#desk`, `#slots`, `#pond`, `#ads`, `#merge`, `#roulette`, `#deploy`, `#t3`, `#ledger` and `#receipt`.
+Direct links skip the boot screen: `#desk`, `#slots`, `#pond`, `#ads`, `#merge`, `#roulette`, `#deploy`, `#t3`, `#ledger` and `#receipt`.
 
 ## Bring a real T3 thread
 
@@ -51,4 +69,4 @@ npm test
 npm run build
 ```
 
-Serve the contents of `dist/` from any static web server. Standalone hosting needs only the files in that directory. Font license notices (Barlow, Space Mono, Silkscreen, Pixelify Sans; all OFL) are in `assets/fonts/`.
+Serve the contents of `dist/` from any static web server. Standalone hosting needs only the files in that directory. Font license notices (Barlow, Barlow Condensed, Space Mono; all OFL) are in `assets/fonts/`.

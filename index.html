@@ -3,12 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#0a0612" />
+    <meta name="theme-color" content="#050507" />
     <meta
       name="description"
-      content="A coding agent, one fake wallet, and a casino open until the build passes."
+      content="Vibe coding as a casino. One fake wallet, one agent, zero impulse control."
     />
-    <meta property="og:title" content="Git Rich Quick · The Dev Casino" />
+    <meta property="og:title" content="Git Rich Quick · Vibe. Gamble. Ship." />
     <meta
       property="og:description"
       content="My coding agent ran out of tokens so I had to hit the slots to finish a feature."
@@ -24,20 +24,13 @@
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <title>Git Rich Quick · The Dev Casino</title>
+    <title>Git Rich Quick · Vibe. Gamble. Ship.</title>
     <link rel="icon" href="./assets/favicon.png" />
     <link
       rel="preload"
-      href="./assets/fonts/Silkscreen-Bold.woff2"
+      href="./assets/fonts/BarlowCondensed-Black.ttf"
       as="font"
-      type="font/woff2"
-      crossorigin
-    />
-    <link
-      rel="preload"
-      href="./assets/fonts/PixelifySans-Bold.woff2"
-      as="font"
-      type="font/woff2"
+      type="font/ttf"
       crossorigin
     />
     <link rel="stylesheet" href="./src/base.css" />
@@ -47,39 +40,33 @@
     <link rel="stylesheet" href="./src/floor.css" />
     <link rel="stylesheet" href="./src/sponsors.css" />
     <link rel="stylesheet" href="./src/t3.css" />
+    <link rel="stylesheet" href="./src/allin.css" />
     <link rel="stylesheet" href="./src/juice.css" />
   </head>
   <body>
-    <div class="title-screen" id="title-screen" aria-hidden="true">
-      <div class="title-logo">
-        <img class="title-coin" src="./assets/token.png" alt="" width="112" height="112" />
-        <h1 class="logo-big">
-          <span class="logo-line one">GIT RICH</span
-          ><span class="logo-line two">QUICK</span>
-        </h1>
-        <p class="title-tag">THE DEV CASINO · FAKE TOKENS · REAL DOPAMINE</p>
+    <div class="boot-screen" id="title-screen" aria-hidden="true">
+      <div class="boot-logo">
+        <h1 class="logo-big" data-text="GIT RICH QUICK">GIT RICH QUICK</h1>
+        <p class="boot-tag">VIBE · GAMBLE · SHIP</p>
       </div>
-      <button class="press-start" type="button">PRESS START</button>
-      <p class="title-legal">
-        ©2026 VIBE-1 ENTERTAINMENT · ALL TOKENS ARE FICTIONAL · THE GIT BLAME IS PERSONAL
-      </p>
+      <button class="press-start" type="button">PRESS ANY KEY</button>
+      <p class="boot-legal">ALL TOKENS ARE FICTIONAL</p>
     </div>
 
-    <div class="game" id="arcade">
-      <header class="hud-top">
-        <a class="logo-badge" href="#arcade" data-act="arcade" aria-label="Git Rich Quick home">
-          <img src="./assets/token.png" width="46" height="46" alt="" />
-          <span class="logo-small"><b>GIT RICH</b><i>QUICK</i></span>
+    <div class="app" id="arcade">
+      <header class="topbar">
+        <a class="logo" href="#arcade" data-act="arcade" aria-label="Git Rich Quick home">
+          <img src="./assets/token.png" width="30" height="30" alt="" />
+          <span>GIT RICH <b>QUICK</b></span>
         </a>
-
-        <div class="hud-player">
-          <div class="hud-level" title="Level 1"><b>1</b><span>LVL</span></div>
+        <div class="topbar-spacer"></div>
+        <div class="hud-player" title="Level">
+          <div class="hud-level"><b>1</b><span>LVL</span></div>
           <div class="hud-xp">
             <span class="hud-rank" id="hud-rank">ROOKIE</span>
             <div class="hud-xp-bar"><i class="hud-xp-fill"></i></div>
           </div>
         </div>
-
         <div class="hud-hype" title="Hype multiplies every win">
           <div class="hud-hype-top">
             <span class="hud-hype-label">HYPE</span>
@@ -88,108 +75,73 @@
           </div>
           <div class="hud-hype-bar"><i class="hud-hype-fill"></i></div>
         </div>
-
         <button
           class="jackpot-board"
           data-act="slots"
-          title="Hit 777 on Commit Slots to win the pool"
+          title="Hit 777 on the side slot to win the pool"
         >
-          <span class="jackpot-label"
-            ><i class="jackpot-dot" aria-hidden="true"></i> JACKPOT</span
-          >
+          <span class="jackpot-label"><i class="jackpot-dot" aria-hidden="true"></i>JACKPOT</span>
           <strong class="jackpot-value" id="jackpot-value">5,000</strong>
         </button>
-
         <button
           class="wallet-chip"
           data-act="fund"
           data-wallet-target
           title="Token balance. Click for more."
         >
-          <img src="./assets/token.png" width="34" height="34" alt="" /><b
-            data-wallet
-            id="wallet-total"
-            >1,200</b
-          ><span class="wallet-plus" aria-hidden="true">+</span>
+          <span class="wallet-label">TOKENS</span>
+          <b data-wallet id="wallet-total">1,200</b>
+          <span class="wallet-plus" aria-hidden="true">+</span>
         </button>
-
-        <div class="hud-sys">
-          <button
-            class="sys-btn sound-button"
-            data-act="audio"
-            aria-label="Sound and FX settings"
-            title="Sound and FX"
-          >
+        <div class="sys">
+          <button class="sys-btn sound-button" data-act="audio" aria-label="Sound and FX settings" title="Sound & FX">
             <i data-icon="volume"></i></button
-          ><button
-            class="sys-btn link-t3"
-            data-act="t3"
-            title="Connect T3 Code"
-            aria-label="Connect T3 Code"
-          >
+          ><button class="sys-btn link-t3" data-act="t3" aria-label="Connect T3 Code" title="Connect T3 Code">
             <i data-icon="plug"></i>
           </button>
         </div>
       </header>
 
       <main class="stage">
-        <aside class="stage-left">
-          <section id="agent-card" aria-label="Agent desk"></section>
-          <section id="fishing-card" aria-label="Token Pond"></section>
-        </aside>
-        <section class="stage-center">
-          <div id="slot-machine" aria-label="Commit Slots"></div>
-          <ol class="win-feed" id="win-feed" aria-label="Recent wins"></ol>
+        <section class="col col-center">
+          <div id="ide" aria-label="Agent IDE"></div>
         </section>
-        <aside class="stage-right" id="cabinets">
-          <h2 class="select-title"><span>SELECT</span> GAME</h2>
-          <div id="floor-cards"></div>
-          <section id="sponsor-card" aria-label="Sponsor TV"></section>
+
+        <aside class="col col-right">
+          <section class="g-panel slot-dock" aria-label="Commit Slots">
+            <h2 class="panel-title"><span>SIDE SLOT</span><em>SPACE</em></h2>
+            <div id="slot-machine"></div>
+            <ol class="win-feed" id="win-feed" aria-label="Recent wins"></ol>
+          </section>
+          <section class="g-panel side-bets" aria-label="Side bets">
+            <h2 class="panel-title"><span>SIDE BETS</span><em>2–6</em></h2>
+            <div id="floor-cards"></div>
+            <section id="fishing-card" aria-label="Token Pond"></section>
+            <section id="sponsor-card" aria-label="Sponsor TV"></section>
+          </section>
         </aside>
       </main>
 
-      <footer class="hotbar">
-        <nav class="hotkeys" aria-label="Games">
-          <button class="hotkey" data-act="slots" data-key=" ">
-            <kbd>SPACE</kbd><span>SPIN</span></button
-          ><button class="hotkey nav-item" data-act="desk" data-key="1">
-            <kbd>1</kbd><span>AGENT</span></button
-          ><button class="hotkey" data-act="merge" data-key="2">
-            <kbd>2</kbd><span>MERGE</span></button
-          ><button class="hotkey" data-act="roulette" data-key="3">
-            <kbd>3</kbd><span>BLAME</span></button
-          ><button class="hotkey" data-act="deploy" data-key="4">
-            <kbd>4</kbd><span>DEPLOY</span></button
-          ><button class="hotkey" data-act="pond" data-key="5">
-            <kbd>5</kbd><span>POND</span></button
-          ><button class="hotkey" data-act="ads" data-key="6">
-            <kbd>6</kbd><span>TV</span></button
-          ><button class="hotkey nav-item" data-act="ledger" data-key="l">
-            <kbd>L</kbd><span>LEDGER</span>
-          </button>
+      <footer class="statusbar">
+        <span class="sb-item sb-branch" id="sb-branch">⎇ main</span>
+        <span class="sb-item" id="sb-burn">0 tok/s</span>
+        <nav class="hotkeys" aria-label="Hotkeys">
+          <button class="hotkey" data-act="slots" data-key=" "><kbd>SPACE</kbd>SLOT</button
+          ><button class="hotkey" data-act="desk" data-key="1"><kbd>1</kbd>IDE</button
+          ><button class="hotkey" data-act="merge" data-key="2"><kbd>2</kbd>MERGE</button
+          ><button class="hotkey" data-act="roulette" data-key="3"><kbd>3</kbd>BLAME</button
+          ><button class="hotkey" data-act="deploy" data-key="4"><kbd>4</kbd>DEPLOY</button
+          ><button class="hotkey" data-act="pond" data-key="5"><kbd>5</kbd>POND</button
+          ><button class="hotkey" data-act="ads" data-key="6"><kbd>6</kbd>TV</button
+          ><button class="hotkey nav-item" data-act="ledger" data-key="9"><kbd>9</kbd>LEDGER</button
+          ><span class="hotkey hotkey-static"><kbd>A–Z</kbd>MASH WHILE IT CODES</span>
         </nav>
         <div class="ticker">
-          <button data-act="ledger" class="ticker-tag">
-            <i data-icon="pulse"></i> LIVE
-          </button>
-          <span class="ticker-track"
-            ><span id="ticker-line"
-              >Welcome bonus credited. Finance would like to see your
-              receipts.</span
-            ></span
-          >
+          <span class="ticker-tag"><i data-icon="pulse"></i> WIRE</span>
+          <span class="ticker-track"><span id="ticker-line">Welcome bonus credited.</span></span>
         </div>
-        <div class="hotbar-end">
-          <button data-act="receipt" class="mini-link">
-            <i data-icon="receipt"></i> RECEIPT</button
-          ><a
-            class="mini-link"
-            href="https://github.com/Mischa-dev/GIT-RICH-QUICK"
-            target="_blank"
-            rel="noopener noreferrer"
-            >SOURCE ↗</a
-          >
-        </div>
+        <button data-act="receipt" class="sb-item sb-link"><i data-icon="receipt"></i> RECEIPT</button>
+        <a class="sb-item sb-link" href="https://github.com/Mischa-dev/GIT-RICH-QUICK" target="_blank" rel="noopener noreferrer">SRC ↗</a>
       </footer>
     </div>
 
@@ -200,9 +152,7 @@
             <small id="dialog-kicker"></small>
             <h2 id="dialog-title"></h2>
           </div>
-          <button id="dialog-close" aria-label="Close dialog">
-            <span aria-hidden="true">✕</span><kbd>ESC</kbd>
-          </button>
+          <button id="dialog-close" aria-label="Close dialog"><kbd>ESC</kbd><span aria-hidden="true">✕</span></button>
         </header>
         <div id="dialog-body"></div>
       </div>

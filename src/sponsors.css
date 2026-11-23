@@ -75,14 +75,14 @@
   justify-content: space-between;
   gap: 18px;
   padding: clamp(16px, 3vw, 30px);
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
   background:
     repeating-linear-gradient(120deg, #ffffff07 0 2px, transparent 2px 14px),
     radial-gradient(ellipse at 15% 0%, #4b2a7a, transparent 60%), #1b1030;
   box-shadow:
     inset 0 0 0 2px #ffe06655,
-    0 6px 0 var(--si);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .sp-counter-main {
   min-width: 0;
@@ -90,19 +90,19 @@
 .sp-counter-main .sp-overline {
   display: inline-block;
   padding: 4px 8px;
-  border: 2px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
   background: var(--sh);
   color: #fff;
-  box-shadow: 0 3px 0 var(--si);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
   rotate: -2deg;
 }
 .sp-counter h3 {
-  font: 700 clamp(1.6rem, 3.4vw, 2.8rem) / 0.95 var(--sch);
+  font: italic 900 clamp(1.6rem, 3.4vw, 2.8rem) / 0.95 var(--display);
   margin: 0.3em 0 0.25em;
   color: #fff;
   text-shadow:
-    3px 3px 0 var(--si),
+    0 2px 12px rgba(0, 0, 0, 0.7),
     0 0 24px #ff3d9a55;
   text-wrap: balance;
 }
@@ -110,7 +110,7 @@
   font-style: normal;
   color: var(--sv);
   text-shadow:
-    3px 3px 0 var(--si),
+    0 2px 12px rgba(0, 0, 0, 0.7),
     0 0 20px #ffe06688;
 }
 .sp-counter p,
@@ -129,12 +129,12 @@
   gap: 4px;
   min-width: 150px;
   padding: 14px 18px;
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   background: linear-gradient(180deg, #2a1d10, #140d06);
   box-shadow:
     inset 0 0 0 2px #ffd16666,
-    0 5px 0 var(--si);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   color: var(--sv);
 }
 .sp-balance span,
@@ -143,10 +143,10 @@
   letter-spacing: 0.08em;
 }
 .sp-balance strong {
-  font: 900 clamp(2rem, 4vw, 3rem) / 1 var(--sbig);
+  font: italic 900 clamp(2rem, 4vw, 3rem) / 1 var(--display);
   color: var(--sv);
   text-shadow:
-    0 3px 0 var(--si),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 16px #ffb70399;
   font-variant-numeric: tabular-nums;
 }
@@ -163,7 +163,7 @@
 .sp-labelrow .sp-overline {
   color: var(--sc);
   font-size: 0.9rem;
-  text-shadow: 2px 2px 0 var(--si);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 
 /* ---------- loot-card refills ---------- */
@@ -189,11 +189,11 @@
       transparent 70%
     ),
     #1b1030;
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
   box-shadow:
     inset 0 0 0 2px var(--rar),
-    0 6px 0 var(--si);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   transition:
     transform 0.16s cubic-bezier(0.3, 1.8, 0.5, 1),
     box-shadow 0.16s;
@@ -229,19 +229,19 @@
   transform: translateY(-8px) rotate(-1deg);
   box-shadow:
     inset 0 0 0 3px var(--rar),
-    0 14px 0 var(--si),
+    0 16px 34px -14px rgba(0, 0, 0, 0.9),
     0 0 34px color-mix(in srgb, var(--rar) 70%, transparent);
 }
 .sp-network .sp-pack:active {
   transform: translateY(3px);
   box-shadow:
     inset 0 0 0 3px var(--rar),
-    0 2px 0 var(--si);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .sp-pack-id {
   width: fit-content;
   padding: 3px 7px;
-  border: 2px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
   background: var(--rar);
   color: var(--si);
@@ -249,20 +249,18 @@
   font-weight: 700;
 }
 .sp-pack-amount {
-  font: 900 clamp(2.4rem, 4.6vw, 3.4rem) / 1 var(--sbig);
+  font: italic 900 clamp(2.4rem, 4.6vw, 3.4rem) / 1 var(--display);
   margin: 14px 0 8px;
   color: #fff;
-  -webkit-text-stroke: 2px var(--si);
-  paint-order: stroke fill;
   text-shadow:
-    0 4px 0 var(--si),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 22px var(--rar);
   font-variant-numeric: tabular-nums;
 }
 .sp-pack-name {
-  font: 700 1.05rem/1.15 var(--sch);
+  font: italic 900 1.05rem/1.15 var(--display);
   color: var(--rar);
-  text-shadow: 2px 2px 0 var(--si);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .sp-pack-desc {
   margin: 6px 0 14px;
@@ -280,7 +278,7 @@
   font-weight: 700;
   color: var(--si);
   background: var(--rar);
-  border-top: 3px solid var(--si);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
   font-size: 0.72rem;
 }
 .sp-pack-price b {
@@ -295,7 +293,7 @@
   color: var(--sh);
   font-size: 0.72rem;
   font-weight: 700;
-  text-shadow: 2px 2px 0 var(--si);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .sp-or i {
   height: 3px;
@@ -315,12 +313,12 @@
   padding: 14px 18px;
   color: #fff;
   background: linear-gradient(180deg, #ff5fae, #d81f7c);
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
   box-shadow:
     inset 0 3px 0 #ffffff55,
     inset 0 -5px 0 #0003,
-    0 6px 0 var(--si),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 26px #ff3d9a55;
   transition: transform 0.12s cubic-bezier(0.3, 1.8, 0.5, 1);
 }
@@ -331,7 +329,7 @@
   transform: translateY(4px);
   box-shadow:
     inset 0 3px 0 #ffffff55,
-    0 2px 0 var(--si);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .sp-tv-icon {
   flex: 0 0 auto;
@@ -339,7 +337,7 @@
   place-content: center;
   width: 52px;
   height: 42px;
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
   background: var(--si);
   color: var(--sh);
@@ -348,8 +346,8 @@
   animation: sp-play 0.8s ease-in-out infinite alternate;
 }
 .sp-sponsor-button b {
-  font: 700 1.3rem/1 var(--sch);
-  text-shadow: 2px 2px 0 var(--si);
+  font: italic 900 1.3rem/1 var(--display);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .sp-sponsor-button small {
   display: block;
@@ -362,14 +360,11 @@
   margin-left: auto;
   text-align: right;
   color: var(--sv);
-  font: 900 2rem/1 var(--sbig);
-  -webkit-text-stroke: 2px var(--si);
-  paint-order: stroke fill;
-  text-shadow: 0 3px 0 var(--si);
+  font: italic 900 2rem/1 var(--display);
+  text-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .sp-sponsor-button strong small {
-  font: 700 0.6rem/1 var(--spx);
-  -webkit-text-stroke: 0;
+  font: 400 0.6rem/1 var(--mono);
   color: #fff;
 }
 
@@ -378,10 +373,10 @@
 .sp-network .sp-plain:not(.g-btn) {
   min-height: 52px;
   padding: 10px 18px;
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
-  box-shadow: 0 5px 0 var(--si);
-  font: 700 0.9rem/1 var(--spx);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
+  font: 400 0.9rem/1 var(--mono);
   background: var(--sv);
   color: var(--si);
 }
@@ -407,7 +402,7 @@
   position: relative;
   padding: 22px 28px 26px;
   color: #fff;
-  border: 4px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 20px;
   background:
     repeating-conic-gradient(
@@ -418,7 +413,7 @@
     radial-gradient(circle at 50% 45%, #3a2a0a, #1b1030 70%);
   box-shadow:
     inset 0 0 0 3px var(--sv),
-    0 8px 0 var(--si),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 50px #ffe06644;
   animation: sp-reward-in 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
 }
@@ -433,20 +428,18 @@
 .sp-receipt .sp-overline {
   display: inline-block;
   padding: 5px 10px;
-  border: 2px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
   background: var(--sl);
   color: var(--si);
-  box-shadow: 0 3px 0 var(--si);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .sp-receipt .sp-receipt-total {
   margin-top: 10px;
-  font: 900 clamp(4.5rem, 13vw, 8rem) / 1 var(--sbig);
+  font: italic 900 clamp(4.5rem, 13vw, 8rem) / 1 var(--display);
   color: var(--sv);
-  -webkit-text-stroke: 4px var(--si);
-  paint-order: stroke fill;
   text-shadow:
-    0 7px 0 var(--si),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 40px #ffb703aa;
   font-variant-numeric: tabular-nums;
 }
@@ -981,7 +974,7 @@
 
 /* ---------- game skin: CRT, air controls, floor card ---------- */
 .sp-network .sp-tv {
-  border: 4px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   outline: 0;
   border-radius: 22px;
   padding: 14px;
@@ -989,15 +982,15 @@
   box-shadow:
     inset 0 0 0 3px #7a3cff88,
     inset 0 4px 0 #ffffff22,
-    0 8px 0 var(--si),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 50px #7a3cff44;
 }
 .sp-network .sp-tv > * {
-  border-left: 3px solid var(--si);
-  border-right: 3px solid var(--si);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+  border-right: 1px solid rgba(255, 255, 255, 0.14);
 }
 .sp-network .sp-signal {
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-bottom: 0;
   border-radius: 12px 12px 0 0;
   min-height: 32px;
@@ -1009,7 +1002,7 @@
   animation: sp-rec 0.8s steps(1) infinite;
 }
 .sp-network .sp-ticker {
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-top: 0;
   border-radius: 0 0 12px 12px;
   font-size: 0.66rem;
@@ -1031,19 +1024,19 @@
   gap: 18px;
   margin-top: 18px;
   padding: 14px 14px 14px 20px;
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
   background: #1b1030;
   box-shadow:
     inset 0 0 0 2px #7a3cff55,
-    0 6px 0 var(--si);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .sp-air-meter {
   color: var(--sc);
 }
 .sp-air-meter .sp-overline {
   font-size: 0.8rem;
-  text-shadow: 2px 2px 0 var(--si);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .sp-air-controls[data-finished] .sp-air-meter {
   color: var(--sl);
@@ -1054,19 +1047,19 @@
   gap: 6px;
 }
 .sp-cuts i {
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
   background: linear-gradient(
     to right,
     var(--sh) var(--sp-progress, 0%),
     #2a1d40 var(--sp-progress, 0%)
   );
-  box-shadow: 0 3px 0 var(--si);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .sp-air-controls[data-finished] .sp-cuts i {
   background: var(--sl);
   box-shadow:
-    0 3px 0 var(--si),
+    0 12px 30px -14px rgba(0, 0, 0, 0.9),
     0 0 14px var(--sl);
 }
 .sp-network .sp-claim {
@@ -1095,7 +1088,7 @@
 .sp-floor-card {
   height: 118px;
   color: #fff;
-  border: 3px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
   background-image: linear-gradient(
     110deg,
@@ -1105,7 +1098,7 @@
   );
   box-shadow:
     inset 0 0 0 2px #ff8a3d88,
-    0 6px 0 var(--si);
+    0 12px 30px -14px rgba(0, 0, 0, 0.9);
   transition:
     transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1),
     box-shadow 0.18s;
@@ -1115,19 +1108,19 @@
   transform: translateY(-5px);
   box-shadow:
     inset 0 0 0 2px #ff8a3d,
-    0 11px 0 var(--si),
+    0 16px 34px -14px rgba(0, 0, 0, 0.9),
     0 0 28px #ff8a3d66;
 }
 .sp-floor-card:active {
   transform: translateY(2px);
-  box-shadow: 0 2px 0 var(--si);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
 }
 .sp-floor-card:focus-visible {
   outline: 3px solid var(--sv);
   outline-offset: 3px;
 }
 .sp-floor-card img {
-  filter: drop-shadow(3px 3px 0 var(--si));
+  filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.7));
 }
 .sp-floor-card:hover img {
   animation: sp-tv-wobble 0.35s ease-in-out infinite alternate;
@@ -1143,12 +1136,12 @@
 .sp-floor-signal {
   width: fit-content;
   padding: 4px 7px;
-  border: 2px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 6px;
   background: var(--sh);
   color: #fff;
-  box-shadow: 0 3px 0 var(--si);
-  font: 700 10px/1 var(--spx);
+  box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.9);
+  font: 400 10px/1 var(--mono);
   letter-spacing: 0.05em;
   rotate: -3deg;
 }
@@ -1158,23 +1151,23 @@
   animation: sp-rec 0.8s steps(1) infinite;
 }
 .sp-floor-card > strong {
-  font: 700 20px/1.05 var(--sch);
+  font: italic 900 20px/1.05 var(--display);
   text-shadow:
-    2px 2px 0 var(--si),
+    0 2px 12px rgba(0, 0, 0, 0.7),
     0 0 14px #ff8a3d66;
 }
 .sp-floor-link {
-  font: 400 11px/1.2 var(--spx);
+  font: 400 11px/1.2 var(--mono);
   color: #ffd9c2;
-  text-shadow: 1px 1px 0 var(--si);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.7);
 }
 .sp-floor-link b {
   padding: 3px 6px;
-  border: 2px solid var(--si);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 5px;
   background: var(--sv);
   color: var(--si);
-  font: 700 10px/1 var(--spx);
+  font: 400 10px/1 var(--mono);
   text-shadow: none;
 }
 .sp-floor-link > span {
@@ -1213,4 +1206,233 @@
   .sp-floor-card {
     transition: none;
   }
+}
+
+/* ==========================================================================
+   NEW LOOK — side-rail row, alarm funding, brainrot split-screen
+   ========================================================================== */
+.sp-floor-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    "art name key"
+    "art link key";
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 3px;
+  min-height: 68px;
+  height: auto;
+  padding: 2px 10px 2px 2px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(255, 43, 214, 0.22), rgba(255, 255, 255, 0.03) 60%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  text-align: left;
+  overflow: hidden;
+}
+.sp-floor-card::before,
+.sp-floor-signal {
+  display: none;
+}
+.sp-floor-card:hover {
+  transform: translateX(-4px);
+  border-color: var(--pink);
+  box-shadow: 0 0 26px -4px var(--pink);
+}
+.sp-floor-card img {
+  grid-area: art;
+  position: static;
+  width: 64px;
+  height: 62px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #1a0b22;
+  transform: none;
+  animation: none;
+}
+.sp-floor-card > strong {
+  grid-area: name;
+  align-self: end;
+  font: italic 900 23px/0.95 var(--display);
+  text-transform: uppercase;
+  color: #fff;
+}
+.sp-floor-link {
+  grid-area: link;
+  align-self: start;
+  font: 400 10px/1.2 var(--mono);
+  color: var(--dim);
+}
+.sp-floor-link b {
+  color: var(--lime);
+  background: none;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+.sp-floor-key {
+  grid-area: key;
+  padding: 3px 7px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font: 400 11px/1 var(--mono);
+}
+.sp-floor-card:hover .sp-floor-key {
+  background: var(--pink);
+  color: #000;
+}
+
+/* funding alarm: the agent stalled one step from shipping */
+.sp-alarm .sp-counter {
+  border: 1px solid var(--red);
+  background:
+    repeating-linear-gradient(-45deg, rgba(255, 46, 85, 0.12) 0 14px, transparent 14px 28px),
+    linear-gradient(180deg, rgba(255, 46, 85, 0.25), rgba(30, 4, 10, 0.9));
+  box-shadow:
+    0 0 0 1px rgba(255, 46, 85, 0.5),
+    0 0 60px -10px var(--red),
+    inset 0 0 60px rgba(255, 46, 85, 0.25);
+  animation: sp-alarm 0.9s steps(1) infinite;
+}
+@keyframes sp-alarm {
+  50% {
+    box-shadow:
+      0 0 0 1px var(--red),
+      0 0 90px -4px var(--red),
+      inset 0 0 90px rgba(255, 46, 85, 0.45);
+  }
+}
+.sp-alarm .sp-counter-main .sp-overline {
+  color: #fff;
+  background: var(--red);
+  padding: 4px 8px;
+  border-radius: 4px;
+  animation: sp-blink 0.5s steps(1) infinite;
+}
+@keyframes sp-blink {
+  50% {
+    opacity: 0.3;
+  }
+}
+.sp-alarm .sp-counter h3 {
+  font: italic 900 clamp(40px, 6vw, 76px) / 0.9 var(--display);
+  color: #fff;
+  text-shadow: 0 0 30px var(--red);
+}
+.sp-alarm .sp-counter h3 em {
+  display: block;
+  color: var(--yellow);
+  font-style: inherit;
+}
+.sp-alarm .sp-reason {
+  font: 400 14px/1.45 var(--mono);
+  color: #ffd2da;
+}
+.sp-alarm .sp-sponsor-button {
+  animation: sp-throb 0.6s ease-in-out infinite alternate;
+}
+@keyframes sp-throb {
+  to {
+    transform: scale(1.025);
+    filter: brightness(1.25);
+  }
+}
+
+/* brainrot split-screen */
+.sp-rot {
+  position: relative;
+  height: clamp(190px, 30vh, 300px);
+  margin-top: 10px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 0 40px -10px var(--cyan);
+  background: #07040d;
+}
+.sp-gameplay {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.sp-rot-tag {
+  position: absolute;
+  left: 12px;
+  top: 10px;
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.55);
+}
+.sp-captions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  translate: 0 -50%;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0 0.28em;
+  padding: 0 16px;
+  pointer-events: none;
+  font: italic 900 clamp(34px, 5vw, 64px) / 1 var(--display);
+  text-transform: uppercase;
+  color: #fff;
+  -webkit-text-stroke: 7px #000;
+  paint-order: stroke fill;
+  text-shadow: 0 6px 0 #000;
+}
+.sp-captions .now {
+  color: var(--yellow);
+}
+.sp-captions.punch {
+  animation: sp-cap-punch 0.22s cubic-bezier(0.2, 1.8, 0.4, 1);
+}
+@keyframes sp-cap-punch {
+  from {
+    transform: scale(1.35) rotate(-3deg);
+  }
+}
+.sp-punch {
+  animation: sp-screen-punch 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes sp-screen-punch {
+  from {
+    transform: scale(1.06);
+    filter: saturate(2) brightness(1.3);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-captions.punch,
+  .sp-punch,
+  .sp-alarm .sp-counter,
+  .sp-alarm .sp-sponsor-button,
+  .sp-alarm .sp-counter-main .sp-overline {
+    animation: none !important;
+  }
+}
+/* Ad + gameplay must both fit above the fold with the claim button. */
+.sp-network:has(.sp-rot) .sp-screen {
+  min-height: clamp(150px, 24vh, 250px);
+}
+.sp-network:has(.sp-rot) .sp-rot {
+  height: clamp(150px, 26vh, 260px);
+}
+.sp-network:has(.sp-rot) .sp-script h3 {
+  font-size: clamp(26px, 3.4vw, 44px);
+}
+.sp-network .sp-claim,
+.sp-network .sp-primary,
+.sp-network .sp-plain,
+.sp-sponsor-button b,
+.sp-sponsor-button > strong {
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.sp-network .sp-claim:disabled {
+  filter: saturate(0.4) brightness(0.8);
 }

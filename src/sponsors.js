@@ -796,6 +796,151 @@ function mountStamp(node, name) {
   node.append(stampCanvas(name));
 }
 
+// ---------------------------------------------------------------------------
+// Brainrot split-screen: a procedural neon runner loop under the ad, with
+// word-by-word captions punched over it. Pure canvas, no assets.
+const EMOJI = ["🔥", "💰", "🚀", "😭", "💀", "🤑", "⚡", "🎰", "📈", "🧠"];
+function runnerLoop(canvas, isLive) {
+  const ctx = canvas.getContext?.("2d");
+  if (!ctx) return () => {};
+  const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  let raf = 0,
+    last = performance.now(),
+    t = 0,
+    y = 0,
+    vy = 0,
+    score = 0;
+  const obstacles = [],
+    coins = [],
+    sparks = [];
+  let spawnIn = 0.6,
+    coinIn = 0.3;
+  const hues = [320, 190, 85, 50, 275];
+  function frame(now) {
+    if (!isLive() || !canvas.isConnected) return;
+    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
+    last = now;
+    t += dt;
+    const W = (canvas.width = canvas.clientWidth || 640);
+    const H = (canvas.height = canvas.clientHeight || 240);
+    const ground = H * 0.78;
+    const speed = 380 + Math.min(420, t * 40);
+    const hue = hues[Math.floor(t / 1.2) % hues.length];
+    // Sky: hard hyperpop gradient that cycles.
+    const sky = ctx.createLinearGradient(0, 0, 0, ground);
+    sky.addColorStop(0, `hsl(${(hue + 40) % 360} 90% 12%)`);
+    sky.addColorStop(1, `hsl(${hue} 95% 32%)`);
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, ground);
+    // Speed lines.
+    ctx.strokeStyle = "rgba(255,255,255,.18)";
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 14; i++) {
+      const ly = ((i * 53.7) % ground) | 0;
+      const lx = W - ((t * speed * (0.6 + (i % 4) * 0.3) + i * 140) % (W + 200));
+      ctx.beginPath();
+      ctx.moveTo(lx, ly);
+      ctx.lineTo(lx + 60 + (i % 3) * 30, ly);
+      ctx.stroke();
+    }
+    // Floor: scrolling stripes.
+    ctx.fillStyle = "#07040d";
+    ctx.fillRect(0, ground, W, H - ground);
+    ctx.fillStyle = `hsl(${hue} 100% 60%)`;
+    ctx.fillRect(0, ground, W, 3);
+    for (let x = -((t * speed) % 80); x < W; x += 80) ctx.fillRect(x, ground + 14, 40, 4);
+    // Runner physics: auto-jumps obstacles.
+    const rx = W * 0.2,
+      size = Math.max(22, H * 0.12);
+    const next = obstacles.find((o) => o.x + o.w > rx);
+    if (next && y === 0 && next.x - rx < speed * 0.28) vy = -Math.max(560, H * 3.1);
+    vy += 2400 * dt;
+    y = Math.min(0, y + vy * dt);
+    if (y === 0) vy = 0;
+    spawnIn -= dt;
+    coinIn -= dt;
+    if (spawnIn <= 0) {
+      obstacles.push({ x: W + 20, w: size * (0.6 + Math.random() * 0.6), h: size * (0.7 + Math.random() * 0.9) });
+      spawnIn = 0.55 + Math.random() * 0.7;
+    }
+    if (coinIn <= 0) {
+      coins.push({ x: W + 20, y: ground - size * (1.6 + Math.random() * 1.6) });
+      coinIn = 0.18 + Math.random() * 0.3;
+    }
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      const o = obstacles[i];
+      o.x -= speed * dt;
+      if (o.x + o.w < -10) obstacles.splice(i, 1);
+      ctx.fillStyle = "#ff2e55";
+      ctx.shadowColor = "#ff2e55";
+      ctx.shadowBlur = 18;
+      ctx.fillRect(o.x, ground - o.h, o.w, o.h);
+    }
+    ctx.shadowBlur = 0;
+    const ry = ground - size + y;
+    for (let i = coins.length - 1; i >= 0; i--) {
+      const c = coins[i];
+      c.x -= speed * dt;
+      const hit = Math.abs(c.x - (rx + size / 2)) < size * 0.8 && Math.abs(c.y - (ry + size / 2)) < size;
+      if (hit || c.x < -20) {
+        if (hit) {
+          score += 7;
+          for (let k = 0; k < 8; k++)
+            sparks.push({ x: c.x, y: c.y, vx: (Math.random() - 0.5) * 500, vy: (Math.random() - 0.8) * 500, life: 0.5 });
+        }
+        coins.splice(i, 1);
+        continue;
+      }
+      ctx.fillStyle = "#ffe500";
+      ctx.shadowColor = "#ffe500";
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, size * 0.22 * Math.abs(Math.cos(t * 8 + c.x)) + 2, size * 0.22, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const p = sparks[i];
+      p.life -= dt;
+      if (p.life <= 0) {
+        sparks.splice(i, 1);
+        continue;
+      }
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 900 * dt;
+      ctx.fillStyle = `rgba(255,229,0,${p.life * 2})`;
+      ctx.fillRect(p.x, p.y, 4, 4);
+    }
+    // Runner: a glowing cube with a trail.
+    for (let k = 4; k >= 1; k--) {
+      ctx.fillStyle = `hsla(${(hue + 180) % 360} 100% 65% / ${0.12 * (5 - k)})`;
+      ctx.fillRect(rx - k * 16, ry + 4, size, size - 8);
+    }
+    ctx.save();
+    ctx.translate(rx + size / 2, ry + size / 2);
+    ctx.rotate(y < 0 ? t * 12 : 0);
+    ctx.fillStyle = "#19f0ff";
+    ctx.shadowColor = "#19f0ff";
+    ctx.shadowBlur = 24;
+    ctx.fillRect(-size / 2, -size / 2, size, size);
+    ctx.fillStyle = "#07040d";
+    ctx.fillRect(size * 0.05, -size * 0.25, size * 0.18, size * 0.18);
+    ctx.restore();
+    ctx.shadowBlur = 0;
+    // Score HUD.
+    ctx.font = `italic 900 ${Math.round(H * 0.16)}px BarlowCondensed, Impact, sans-serif`;
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 6;
+    ctx.strokeText(String(score).padStart(4, "0"), W - H * 0.62, H * 0.2);
+    ctx.fillText(String(score).padStart(4, "0"), W - H * 0.62, H * 0.2);
+    if (!reduced) raf = requestAnimationFrame(frame);
+  }
+  raf = requestAnimationFrame(frame);
+  return () => cancelAnimationFrame(raf);
+}
+
 export function initSponsors(api) {
   const juice = juiceOf(api);
   let active = null;
@@ -916,6 +1061,11 @@ export function initSponsors(api) {
         </div>
         <div class="sp-ticker"></div>
       </div>
+      <div class="sp-rot" aria-hidden="true">
+        <canvas class="sp-gameplay"></canvas>
+        <div class="sp-captions"></div>
+        <div class="sp-rot-tag">GAMEPLAY FOR ATTENTION RETENTION</div>
+      </div>
       <div class="sp-air-controls">
         <div class="sp-air-meter"><span class="sp-overline">SPONSOR BREAK</span><div class="sp-cuts" aria-hidden="true"><i></i><i></i><i></i></div></div>
       </div>`;
@@ -938,7 +1088,35 @@ export function initSponsors(api) {
     const copy = host.querySelector(".sp-script p");
     const screen = host.querySelector(".sp-screen");
     const start = performance.now();
-    let lastCut = -1;
+    const captions = host.querySelector(".sp-captions");
+    const rot = host.querySelector(".sp-rot");
+    const stopRunner = runnerLoop(
+      host.querySelector(".sp-gameplay"),
+      () => session === active && host.isConnected,
+    );
+    let lastCut = -1,
+      lastWord = -1;
+    function caption(elapsed, cut) {
+      const words = (spot.cuts[cut][0] + " " + spot.cuts[cut][1])
+        .split(/\s+/)
+        .filter(Boolean);
+      const within = (elapsed - cut * CUT_MS) / CUT_MS;
+      const index = Math.min(words.length - 1, Math.floor(within * words.length * 1.1));
+      if (index === lastWord) return;
+      lastWord = index;
+      const from = Math.max(0, index - (index % 3));
+      captions.replaceChildren(
+        ...words.slice(from, from + 3).map((word, i) => {
+          const w = document.createElement("span");
+          w.textContent = word;
+          if (from + i === index) w.className = "now";
+          return w;
+        }),
+      );
+      captions.classList.remove("punch");
+      void captions.offsetWidth;
+      captions.classList.add("punch");
+    }
     function tick() {
       if (session !== active) return;
       const elapsed = performance.now() - start;
@@ -949,7 +1127,23 @@ export function initSponsors(api) {
         screen.dataset.cut = String(cut);
         if (lastCut >= 0) api.sound("tick");
         lastCut = cut;
+        lastWord = -1;
+        if (juice.enabled && rot.isConnected) {
+          const box = rot.getBoundingClientRect();
+          for (let i = 0; i < 3; i++)
+            juice.float(
+              {
+                x: box.left + box.width * (0.15 + Math.random() * 0.7),
+                y: box.top + box.height * (0.25 + Math.random() * 0.5),
+              },
+              EMOJI[(Math.random() * EMOJI.length) | 0],
+              { tone: "push", size: 44 + Math.random() * 30 },
+            );
+          juice.pop(screen, "sp-punch");
+          api.sound("glitch");
+        }
       }
+      if (elapsed < spot.cuts.length * CUT_MS) caption(elapsed, cut);
       bars.forEach((bar, index) => {
         const fill = Math.max(
           0,
@@ -964,6 +1158,13 @@ export function initSponsors(api) {
         host.querySelector(".sp-air-meter .sp-overline").textContent =
           "SPONSOR FEE RELEASED";
         controls.setAttribute("data-finished", "");
+        stopRunner();
+        captions.replaceChildren(
+          Object.assign(document.createElement("span"), {
+            className: "now",
+            textContent: "+" + fmt(REWARD) + " TOKENS",
+          }),
+        );
         if (juice.enabled) {
           juice.pop(claim, "fx-pop");
           juice.burst(claim, {
@@ -1010,10 +1211,23 @@ export function initSponsors(api) {
       <button class="sp-sponsor-button" type="button">
         <span class="sp-tv-icon" aria-hidden="true">▶</span><span><b>Watch a fake ad</b><small>Six seconds of completely local television.</small></span><strong>+${fmt(REWARD)} <small>TOKENS</small></strong>
       </button>`;
-    host.querySelector(".sp-reason").textContent =
-      typeof reason === "string" && reason.trim()
-        ? reason
-        : "Pick up some house tokens. Finance has already lost the receipt.";
+    const alarm = typeof reason === "string" && reason.trim();
+    host.querySelector(".sp-reason").textContent = alarm
+      ? reason
+      : "Pick up some house tokens. Finance has already lost the receipt.";
+    if (alarm && onFunded) {
+      // The agent stalled one step from shipping. Make it feel like an emergency.
+      host.classList.add("sp-alarm");
+      host.querySelector(".sp-counter-main .sp-overline").textContent =
+        "⚠ AGENT OUT OF TOKENS";
+      host.querySelector(".sp-counter-main h3").innerHTML =
+        "SO CLOSE. <em>DON'T STOP NOW.</em>";
+      if (juice.enabled) {
+        api.sound("error");
+        juice.flash("#ff2e55", 0.3);
+        juice.shake(0.35);
+      }
+    }
     host.querySelector(".sp-balance strong").textContent = fmt(
       api.state.tokens,
     );
@@ -1046,7 +1260,8 @@ export function initSponsors(api) {
       <button class="sp-floor-card" type="button">
         <span class="sp-floor-signal" aria-hidden="true"><i></i> ON AIR</span>
         <strong>Sponsor TV</strong>
-        <span class="sp-floor-link">Watch a spot <i>·</i> <b>+${fmt(REWARD)} TOK</b> <span aria-hidden="true">→</span></span>
+        <span class="sp-floor-link">Watch brainrot <i>·</i> <b>+${fmt(REWARD)} TOK</b></span>
+        <kbd class="sp-floor-key" aria-hidden="true">6</kbd>
         <img src="${new URL("../assets/sponsor-tv.png", import.meta.url).href}" width="142" height="96" alt="">
       </button>`;
     card.querySelector("button").addEventListener("click", openAds);

@@ -179,7 +179,7 @@ export function initFishing(api) {
         '<span class="pond-card-art" aria-hidden="true"></span>' +
         '<span class="pond-card-tag"><i aria-hidden="true"></i> SIDE QUEST</span>' +
         '<span class="pond-card-caption"><span><strong>The Token Pond</strong><small>Cast a line for tokens</small></span>' +
-        '<span class="pond-card-arrow" aria-hidden="true"><i></i></span></span></button>';
+        '<kbd class="pond-card-arrow" aria-hidden="true">5</kbd></span></button>';
     }
     const detail = host.querySelector(".pond-card-caption small");
     detail.textContent = book.caught
