@@ -309,9 +309,11 @@ export function initSlots(api) {
     }, duration);
   }
 
-  function spin() {
+  function spin(opts) {
     if (spinning || destroyed) return;
-    if (api.state.tokens < session.bet) {
+    // FEVER hands out free spins: no wager, real payouts.
+    const free = opts?.free === true;
+    if (!free && api.state.tokens < session.bet) {
       if (autoLeft) {
         autoLeft = 0;
         update();
@@ -336,12 +338,12 @@ export function initSlots(api) {
     const netWin = result.payout > bet;
     const jackpot = result.match === "triple" && result.symbol === "seven";
     spinning = true;
-    if (!api.spend(bet, "Commit Slots wager")) {
+    if (!free && !api.spend(bet, "Commit Slots wager")) {
       spinning = false;
       update();
       return;
     }
-    if (autoLeft) autoLeft--;
+    if (autoLeft && !free) autoLeft--;
     api.jackpot?.feed(Math.ceil(bet * 0.2));
     // The progressive pool rides on 777. Credit it with the wager, before animating.
     const pool = jackpot && api.jackpot ? api.jackpot.claim() : 0;

@@ -800,7 +800,7 @@ function mountStamp(node, name) {
 // Brainrot split-screen: a procedural neon runner loop under the ad, with
 // word-by-word captions punched over it. Pure canvas, no assets.
 const EMOJI = ["🔥", "💰", "🚀", "😭", "💀", "🤑", "⚡", "🎰", "📈", "🧠"];
-function runnerLoop(canvas, isLive) {
+export function runnerLoop(canvas, isLive) {
   const ctx = canvas.getContext?.("2d");
   if (!ctx) return () => {};
   const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;

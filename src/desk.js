@@ -1,4 +1,5 @@
 import { juiceOf } from "./juice.js";
+import { runnerLoop } from "./sponsors.js";
 
 // Contracts produce real, downloadable patches for the fictional companies on the floor.
 export const contracts = [
@@ -404,6 +405,27 @@ export function initDesk(api) {
   let testTimer = 0;
   let offer = null;
   let offerTimer = 0;
+  // Brainrot for the wait: a runner plays beside the code while the agent works.
+  let rot = null;
+  function mountRot(on) {
+    const hostEl = workspace?.querySelector(".ide-rot-slot");
+    if (!on || !hostEl) {
+      rot?.stop?.();
+      rot?.node.remove();
+      rot = null;
+      return;
+    }
+    if (!rot) {
+      const node = document.createElement("div");
+      node.className = "ide-rot";
+      node.innerHTML = '<canvas aria-hidden="true"></canvas><span>GAMEPLAY FOR ATTENTION RETENTION</span>';
+      rot = { node };
+      hostEl.append(node);
+      rot.stop = runnerLoop(node.firstChild, () => game.run?.status === "running");
+      return;
+    }
+    hostEl.append(rot.node);
+  }
   const save = () => api.set(storeKey, game);
   if (validRun && savedRun.status === "running") save();
   const live = () => game.run && game.run.status !== "shipped";
@@ -493,6 +515,16 @@ export function initDesk(api) {
       }
     });
     ideHost.replaceChildren(workspace);
+    window.addEventListener("grq:event", (e) => {
+      const type = e.detail?.type;
+      // FEVER: whatever the agent is doing, it now does it three times faster.
+      if (type === "fever-start" && game.run?.status === "running") {
+        const left = Math.max(60, (phaseDue - performance.now()) / 3);
+        window.clearTimeout(timer);
+        phaseDue = performance.now() + left;
+        timer = window.setTimeout(advance, left);
+      }
+    });
     attachKeys();
     render();
   }
@@ -701,7 +733,7 @@ export function initDesk(api) {
           })
           .join("")}</div></div>`
       : `<div class="ide-head"><div class="desk-ticket"><div class="desk-kicker">${esc(c.client)} · ${run.turbo ? "OVERCLOCK" : "STANDARD"}${run.mods?.ultra ? " · ULTRATHINK" : ""}${run.mods?.yolo ? " · YOLO" : ""}</div><h3>${esc(c.title)}</h3>${run.brief && run.brief !== c.title ? `<p class="desk-note">&gt; ${esc(run.brief)}</p>` : ""}</div><div class="ide-pct"><b>${pct}<small>%</small></b><span>${format(run.spent)} TOK BURNED</span></div></div>
-        <pre class="desk-hack-code ide-code${state === "shipped" ? " shipped" : ""}">${codeLines(c, run)}</pre>
+        <div class="ide-split"><pre class="desk-hack-code ide-code${state === "shipped" ? " shipped" : ""}">${codeLines(c, run)}</pre>${state === "running" && run === game.run ? '<div class="ide-rot-slot"></div>' : ""}</div>
         ${
           state === "blocked" && run === game.run
             ? `<div class="ide-continue" role="alertdialog" aria-label="Out of tokens">
@@ -787,6 +819,7 @@ export function initDesk(api) {
     }
     syncContinue(state === "blocked" && run === game.run);
     syncTests(!!tests && !run.testFail);
+    mountRot(state === "running" && run === game.run);
   }
 
   function testNames(c) {
@@ -1064,7 +1097,8 @@ export function initDesk(api) {
     if (!run || run.status !== "running") return;
     const ms =
       delay ??
-      normalDurations[run.phase] * (run.turbo ? 0.5 : 1) * (run.mods?.ultra ? 1.8 : 1);
+      (normalDurations[run.phase] * (run.turbo ? 0.5 : 1) * (run.mods?.ultra ? 1.8 : 1)) /
+        juice.speed;
     phaseDue = performance.now() + ms;
     timer = window.setTimeout(advance, ms);
   }
@@ -1128,7 +1162,10 @@ export function initDesk(api) {
         "agent",
       );
       render();
-      if (ideMode) juice.emit("broke", { need: debit });
+      if (ideMode) {
+        juice.emit("broke", { need: debit });
+        api.sound("siren");
+      }
       else if (workspace?.isConnected) fund();
       else api.toast("Agent paused. Refuel at the terminal.");
       return;
@@ -1246,7 +1283,7 @@ export function initDesk(api) {
     const seg = workspace?.querySelectorAll(".desk-stage-meter span")[run.phase - 1];
     const at = seg || card;
     juice.burst(at, { count: 14, colors: ["#a6ff8f", "#fff", "#ffe066"], speed: 0.7 });
-    juice.float(at, phases[run.phase - 1].toUpperCase() + " ✓", { tone: "bonus", size: 20 });
+    juice.sticker(phases[run.phase - 1].toUpperCase() + " ✓", { tone: "lime", at, size: 26 });
     juice.hype(2.5);
     juice.xp(6);
     if (run.phase === 5) {
@@ -1536,6 +1573,7 @@ export function initDesk(api) {
       clearTimeout(autoTimer);
       clearInterval(testTimer);
       clearTimeout(offerTimer);
+      rot?.stop?.();
       clearInterval(hackTimer);
       if (keyHandler) document.removeEventListener("keydown", keyHandler);
       card?.removeEventListener("click", onClick);

@@ -37,6 +37,19 @@ The row above the IDE is your fleet. **SPAWN** (or ×5) puts another agent on a 
 - **Ship streak:** every consecutive ship pays 10% more (up to ×2) and speeds the music up. Let the CONTINUE countdown hit zero and it's gone.
 - **The announcer** yells at you. Turn him off in Sound & FX if you must.
 
+### FEVER
+
+Fill the hype meter all the way and the floor goes into **FEVER** for 20 seconds (wins extend it, up to 40):
+
+- Everything pays **×5**.
+- Every agent codes **3× faster**.
+- The side slot spins itself for free.
+- The music goes double-time, the whole screen cycles colour, and it rains coins on every beat.
+
+Then comes the **COMEDOWN**: seven grey, quiet seconds where nothing builds hype. Then you chase it again.
+
+Stop playing for 14 seconds and the floor starts heckling you.
+
 ### Slop skills
 
 Toggles under the prompt that do exactly what they say:
@@ -70,7 +83,7 @@ Toggles under the prompt that do exactly what they say:
 | `W` | Agent wall |
 | `Esc` | Close a scene |
 
-Open **Sound & FX** (the speaker button) for music, effects and visual intensity (Chill, Hyped, Feral). If your system asks for reduced motion, the shake, strobes, particles and backdrop motion turn off.
+**Heads up:** the default intensity (Feral) has flashing lights, fast motion and loud synth noises. Open **Sound & FX** (the speaker button) for music, effects and visual intensity (Chill, Hyped, Feral). If your system asks for reduced motion, the shake, strobes, particles and backdrop motion turn off.
 
 Direct links skip the boot screen: `#desk`, `#slots`, `#pond`, `#ads`, `#merge`, `#roulette`, `#deploy`, `#t3`, `#ledger` and `#receipt`.
 

@@ -83,3 +83,15 @@ test("the all-in wheel is a fair European single-zero wheel", () => {
     assert.ok(Number.isInteger(pocket) && pocket >= 0 && pocket < 37);
   }
 });
+
+import { FEVER, bigNum } from "../src/juice.js";
+
+test("fever is a real bonus round and huge balances stay readable", () => {
+  assert.ok(FEVER.mult > hypeTiers.at(-1).mult, "fever pays more than the top hype tier");
+  assert.ok(FEVER.speed > 1 && FEVER.maxMs > FEVER.ms && FEVER.comedown > 0);
+  assert.equal(juiceOf({}).speed, 1, "machines run at normal speed without the engine");
+  assert.equal(juiceOf({}).fever, false);
+  assert.equal(bigNum(1234567), "1,234,567");
+  assert.equal(bigNum(12_340_000), "12.34M");
+  assert.equal(bigNum(7_800_000_000), "7.8B");
+});

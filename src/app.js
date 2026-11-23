@@ -538,6 +538,25 @@ function onStep(step) {
   lastStep = performance.now();
   if (juice.intensity === 0 || juice.reduced) return;
   const tier = juice.tier;
+  if (juice.fever) {
+    // Bonus round: money falls on every eighth and the rig never stops flaring.
+    if (step % 2 === 0) {
+      for (let i = 0; i < 3; i++)
+        juice.burst(
+          { x: Math.random() * innerWidth, y: -20 },
+          { kind: "coin", count: 1, angle: Math.PI / 2, spread: 0.4, speed: 0.5 },
+        );
+    }
+    if (step % 4 === 0) {
+      // Under three hits a second, even at fever tempo.
+      pulse("kick");
+      backdrop.kick(1.1);
+      juice.shake(0.12);
+    }
+    if (step === 4 || step === 12) pulse("snare");
+    pulse("hat", 80);
+    return;
+  }
   if (step % 4 === 0) {
     pulse("kick");
     backdrop.kick(0.35 + tier * 0.18);
@@ -576,3 +595,55 @@ setInterval(() => {
     el.classList.toggle("hot", burn > 20);
   }
 }, 1000);
+
+// FEVER: the side slot spins itself for free until the bonus round ends.
+let feverSpins = 0;
+window.addEventListener("grq:event", (e) => {
+  const type = e.detail?.type;
+  if (type === "fever-start") {
+    clearInterval(feverSpins);
+    feverSpins = setInterval(() => {
+      if (!juice.fever) return clearInterval(feverSpins);
+      if (!slots.rolling && !dialog.open) slots.spin({ free: true });
+    }, 1300);
+  } else if (type === "fever-end") clearInterval(feverSpins);
+});
+
+// Nobody gets to sit still. Idle for a while and the floor starts heckling.
+const nags = [
+  "why aren't you coding",
+  "spawn more agents",
+  "the agents are bored",
+  "your competitors are shipping",
+  "tokens don't burn themselves",
+  "type something",
+  "one more ticket",
+];
+let lastAction = performance.now(),
+  nagIndex = 0;
+const touch = () => (lastAction = performance.now());
+document.addEventListener("pointerdown", touch, true);
+document.addEventListener("keydown", touch, true);
+window.addEventListener("grq:event", touch);
+setInterval(() => {
+  if (
+    performance.now() - lastAction < 14000 ||
+    document.hidden ||
+    dialog.open ||
+    root.hasAttribute("data-booting") ||
+    juice.intensity === 0 ||
+    juice.reduced ||
+    document.querySelector(".ide")?.dataset.state === "running" ||
+    (threads.threads?.length ?? 0) > 0
+  )
+    return;
+  const line = nags[nagIndex++ % nags.length];
+  juice.say(line);
+  juice.sticker(line.toUpperCase() + "?!", {
+    tone: "pink",
+    at: document.querySelector('[data-desk-action="start"], [data-desk-action="next"]'),
+    size: 30,
+  });
+  juice.shake(0.2);
+  lastAction = performance.now() - 5000;
+}, 3000);

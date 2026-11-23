@@ -12,11 +12,13 @@ const quiet = new Proxy(
     get: (_, key) =>
       key === "heat" || key === "tier" || key === "combo"
         ? 0
-        : key === "enabled"
-          ? false
-          : key === "payout"
-            ? () => 0
-            : NOOP,
+        : key === "speed" || key === "mult"
+          ? 1
+          : key === "enabled" || key === "fever"
+            ? false
+            : key === "payout"
+              ? () => 0
+              : NOOP,
   },
 );
 export const juiceOf = (api) => api?.juice || quiet;
@@ -39,6 +41,12 @@ export const hypeTiers = [
   { at: 70, name: "UNHINGED", mult: 1.5, color: "#ff3d9a" },
   { at: 92, name: "TRANSCENDENT", mult: 2, color: "#7df9ff" },
 ];
+/** The bonus round: fill the hype meter and the whole floor goes off. */
+export const FEVER = { mult: 5, speed: 3, ms: 20000, maxMs: 40000, extend: 500, comedown: 7000 };
+export const bigNum = (n) =>
+  Math.abs(n) >= 1e7
+    ? new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 2 }).format(n)
+    : Math.round(n).toLocaleString("en-US");
 export function tierFor(heat) {
   let tier = 0;
   for (let i = 0; i < hypeTiers.length; i++) if (heat >= hypeTiers[i].at) tier = i;
@@ -375,7 +383,7 @@ export function createJuice({ wallet, audio }) {
     wake();
   }
   function stepShake(dt) {
-    const targets = [document.querySelector(".shell"), document.querySelector("#game-dialog[open] .dialog-inner")];
+    const targets = [document.querySelector(".app"), document.querySelector("#game-dialog[open] .dialog-inner")];
     if (trauma <= 0) {
       for (const t of targets) if (t && t.style.translate) t.style.translate = t.style.rotate = "";
       return;
@@ -466,8 +474,9 @@ export function createJuice({ wallet, audio }) {
   // ---------- banners ----------
   const queue = [];
   let showing = false;
-  function banner(spec) {
-    queue.push(spec);
+  function banner(spec, urgent) {
+    if (urgent) queue.unshift(spec);
+    else queue.push(spec);
     if (queue.length > 3) queue.splice(1, 1);
     if (!showing) nextBanner();
   }
@@ -495,7 +504,8 @@ export function createJuice({ wallet, audio }) {
     node.append(rays, kicker, title, amount);
     if (spec.sub) node.append(el("em", "fx-banner-sub", spec.sub));
     bannerHost.append(node);
-    const dur = spec.duration || 2100;
+    // When things pile up, banners get shorter so the screen never falls behind.
+    const dur = (spec.duration || 2100) * (queue.length ? 0.55 : 1);
     if (spec.amount) countUp(amount, spec.amount, Math.min(1400, dur * 0.6), spec.suffix || " TOK");
     if (spec.sound) audio.sound(spec.sound);
     if (spec.say !== false) say(spec.say || spec.title);
@@ -510,7 +520,7 @@ export function createJuice({ wallet, audio }) {
   function countUp(node, total, ms, suffix = "") {
     const start = performance.now();
     let lastTick = 0;
-    const fmt = (n) => "+" + Math.round(n).toLocaleString("en-US") + suffix;
+    const fmt = (n) => "+" + bigNum(n) + suffix;
     if (reduced()) {
       node.textContent = fmt(total);
       return;
@@ -544,15 +554,23 @@ export function createJuice({ wallet, audio }) {
     const fill = hudFill();
     if (fill) fill.style.width = heat.toFixed(1) + "%";
     const name = hudName();
-    if (name) name.textContent = hypeTiers[tier].name;
     const mult = hudMult();
-    if (mult) mult.textContent = "×" + hypeTiers[tier].mult;
+    if (fever) {
+      const left = Math.max(0, fever.until - performance.now());
+      if (fill) fill.style.width = ((left / (fever.until - fever.started)) * 100).toFixed(1) + "%";
+      if (name) name.textContent = "FEVER " + (left / 1000).toFixed(1);
+      if (mult) mult.textContent = "×" + FEVER.mult;
+    } else {
+      if (name) name.textContent = comedownUntil ? "COMEDOWN" : hypeTiers[tier].name;
+      if (mult) mult.textContent = "×" + hypeTiers[tier].mult;
+    }
+    setMarquee(fever ? "FEVER" : tier >= 2 ? hypeTiers[tier].name : "");
     audio.setHeat?.(heat / 100);
     if (tier !== shownTier) {
       const up = tier > shownTier;
       shownTier = tier;
       emit("tier", { tier, name: hypeTiers[tier].name, up });
-      if (up && tier >= 2) {
+      if (up && tier >= 2 && !fever) {
         banner({
           kicker: "HYPE METER",
           title: hypeTiers[tier].name,
@@ -567,12 +585,92 @@ export function createJuice({ wallet, audio }) {
     }
   }
   function hype(amount = 1) {
+    if (comedownUntil) return; // Nothing hits during the comedown. That's the point.
     heat = clamp(heat + amount, 0, 100);
     lastHype = performance.now();
+    if (heat >= 100 && !fever && scale()) startFever();
     paintHeat();
   }
+
+  // ---------- FEVER ----------
+  let fever = null,
+    comedownUntil = 0;
+  const marquee = el("div", "fx-marquee");
+  marquee.setAttribute("aria-hidden", "true");
+  document.body.prepend(marquee);
+  let marqueeText = null;
+  function setMarquee(text) {
+    if (text === marqueeText) return;
+    marqueeText = text;
+    marquee.dataset.on = text ? "1" : "";
+    marquee.innerHTML = text
+      ? [0, 1, 2].map((i) => `<div style="--row:${i}"><span>${(text + " · ").repeat(14)}</span></div>`).join("")
+      : "";
+  }
+  function startFever() {
+    const now = performance.now();
+    fever = { started: now, until: now + FEVER.ms, earned: 0 };
+    root.classList.add("fever");
+    audio.setFever?.(true);
+    audio.sound("airhorn");
+    audio.sound("boom");
+    impact();
+    flash("#ffffff", 0.6);
+    shake(1);
+    banner({ kicker: "HYPE METER MAXED", title: "FEVER", sub: `everything pays ×${FEVER.mult} · agents ×${FEVER.speed} speed · free spins`, tone: "rainbow", duration: 1900, say: "fever mode" }, true);
+    for (let i = 0; i < 6; i++)
+      setTimeout(() => burst({ x: rand(0, W), y: rand(0, H * 0.6) }, { kind: "confetti", count: 60, speed: 1.4 }), i * 140);
+    emit("fever-start", {});
+  }
+  function endFever() {
+    const earned = fever.earned;
+    fever = null;
+    heat = 0;
+    comedownUntil = performance.now() + FEVER.comedown;
+    root.classList.remove("fever");
+    root.classList.add("comedown");
+    audio.setFever?.(false);
+    audio.sound("lose");
+    banner({ kicker: "FEVER OVER", title: "COMEDOWN", amount: earned || undefined, sub: earned ? "earned in fever. now chase it." : "now chase it.", tone: "cyan", duration: 2200, say: "comedown" }, true);
+    emit("fever-end", { earned });
+    paintHeat();
+  }
+  /** One inverted, zoomed frame. For the moments that deserve it. */
+  function impact() {
+    if (!scale()) return;
+    root.classList.remove("fx-impact");
+    void root.offsetWidth;
+    root.classList.add("fx-impact");
+    setTimeout(() => root.classList.remove("fx-impact"), 90);
+  }
+  /** Slam a sticker on the screen. They overlap; that's the look. */
+  const stickerTones = ["gold", "pink", "cyan", "lime", "red"];
+  function sticker(text, opts = {}) {
+    if (!scale()) return;
+    while (floaters.querySelectorAll(".fx-sticker").length >= 22) floaters.querySelector(".fx-sticker").remove();
+    const n = el("div", "fx-sticker fx-st-" + (stickerTones.includes(opts.tone) ? opts.tone : pick(stickerTones)), String(text));
+    const at = opts.at ? centerOf(opts.at) : { x: rand(W * 0.14, W * 0.86), y: rand(H * 0.16, H * 0.8) };
+    n.style.left = clamp(at.x + (opts.at ? rand(-30, 30) : 0), 60, W - 60) + "px";
+    n.style.top = clamp(at.y + (opts.at ? rand(-20, 20) : 0), 50, H - 50) + "px";
+    n.style.setProperty("--r", rand(-14, 14).toFixed(1) + "deg");
+    if (opts.size) n.style.fontSize = opts.size + "px";
+    floaters.append(n);
+    setTimeout(() => n.remove(), 1300);
+  }
   setInterval(() => {
-    if (performance.now() - lastHype > 2200 && heat > 0) {
+    const now = performance.now();
+    if (fever) {
+      heat = 100;
+      if (now >= fever.until) endFever();
+      else paintHeat();
+    } else if (comedownUntil && now >= comedownUntil) {
+      comedownUntil = 0;
+      root.classList.remove("comedown");
+      heat = 22;
+      lastHype = now;
+      say("chase it");
+      paintHeat();
+    } else if (now - lastHype > 2200 && heat > 0) {
       heat = Math.max(0, heat - (heat > 70 ? 1.6 : 1.1));
       paintHeat();
     }
@@ -637,6 +735,7 @@ export function createJuice({ wallet, audio }) {
     comboEl.classList.add("show");
     pop(comboEl, "fx-pop");
     if ([8, 20, 40, 70, 120, 200].includes(combo)) {
+      sticker(`×${combo} ${comboWord(combo)}`, { tone: combo >= 70 ? "pink" : "cyan", at: { x, y: y - 90 } });
       audio.sound("tierup");
       burst({ x, y: y - 40 }, { kind: "star", count: 18 });
       flash(combo >= 70 ? "#ff3d9a" : "#7df9ff", 0.12);
@@ -691,13 +790,17 @@ export function createJuice({ wallet, audio }) {
     if (!(amount > 0)) return 0;
     const tierName = big || winTier(amount, bet);
     const ht = tierFor(heat);
-    const mult = hypeTiers[ht].mult;
+    const mult = fever ? FEVER.mult : hypeTiers[ht].mult;
     const bonus = tierName === "push" ? 0 : Math.round(amount * (mult - 1));
     if (bonus > 0) wallet.earn(bonus, `Hype bonus ×${mult} · ${label}`);
     const total = amount + bonus;
+    if (fever) {
+      fever.earned += total;
+      fever.until = Math.min(fever.started + FEVER.maxMs, fever.until + FEVER.extend);
+    }
     const at = centerOf(from);
-    float(at, "+" + total.toLocaleString("en-US"), { tone: tierName === "push" ? "push" : "gain", size: tierName === "nice" || tierName === "push" ? 30 : 44 });
-    if (bonus) float(at, `HYPE ×${mult}`, { tone: "bonus", dy: 40 });
+    float(at, "+" + bigNum(total), { tone: tierName === "push" ? "push" : "gain", size: tierName === "nice" || tierName === "push" ? 30 : 44 });
+    if (bonus) float(at, `${fever ? "FEVER" : "HYPE"} ×${mult}`, { tone: "bonus", dy: 40 });
     coinsTo(from, total);
     emit("win", { amount: total, tier: tierName, source: label, bonus });
     const heatGain = { push: 2, nice: 7, big: 16, mega: 28, jackpot: 45 }[tierName] || 3;
@@ -718,6 +821,10 @@ export function createJuice({ wallet, audio }) {
     burst(at, { kind: "confetti", count: tierName === "big" ? 50 : 140, speed: 1.3 });
     shake(tierName === "big" ? 0.45 : 0.8);
     glitch(tierName === "big" ? 220 : 520);
+    if (tierName !== "big") {
+      impact();
+      audio.sound("airhorn");
+    }
     flash(tierName === "jackpot" ? "#fff3b0" : "#ffd166", tierName === "big" ? 0.18 : 0.4);
     const titles = { big: "BIG WIN", mega: "MEGA WIN", jackpot: "JACKPOT" };
     banner({
@@ -757,7 +864,7 @@ export function createJuice({ wallet, audio }) {
     const nodes = document.querySelectorAll("[data-wallet]");
     if (shown === null || reduced()) {
       shown = value;
-      nodes.forEach((n) => (n.textContent = value.toLocaleString("en-US")));
+      nodes.forEach((n) => (n.textContent = bigNum(value)));
       return;
     }
     if (odoFrame) return;
@@ -769,12 +876,12 @@ export function createJuice({ wallet, audio }) {
     const step = (now) => {
       const t = Math.min(1, (now - t0) / dur);
       shown = Math.round(from + (goal - from) * (1 - (1 - t) ** 3));
-      nodes.forEach((n) => (n.textContent = shown.toLocaleString("en-US")));
+      nodes.forEach((n) => (n.textContent = bigNum(shown)));
       if (t < 1 && shown !== goal) odoFrame = requestAnimationFrame(step);
       else {
         odoFrame = 0;
         shown = goal;
-        nodes.forEach((n) => (n.textContent = goal.toLocaleString("en-US")));
+        nodes.forEach((n) => (n.textContent = bigNum(goal)));
         setTimeout(() => nodes.forEach((n) => n.closest(".wallet-chip, .wallet")?.removeAttribute("data-dir")), 500);
       }
     };
@@ -798,6 +905,21 @@ export function createJuice({ wallet, audio }) {
     enabled: true,
     glitch,
     emit,
+    sticker,
+    impact,
+    get fever() {
+      return !!fever;
+    },
+    get speed() {
+      return fever ? FEVER.speed : 1;
+    },
+    get mult() {
+      return fever ? FEVER.mult : hypeTiers[tierFor(heat)].mult;
+    },
+    /** Dev/test hook: fill the meter. */
+    maxHype() {
+      hype(100);
+    },
     say,
     get announcer() {
       return announcer;

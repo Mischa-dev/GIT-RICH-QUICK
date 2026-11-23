@@ -1061,7 +1061,7 @@
 .ide-offer {
   position: absolute;
   top: 128px;
-  right: 16px;
+  left: 18px;
   z-index: 4;
   width: min(300px, 70%);
   display: grid;
@@ -1076,7 +1076,7 @@
 }
 @keyframes offer-in {
   from {
-    transform: translateX(120%) rotate(8deg);
+    transform: translateX(-120%) rotate(-8deg);
   }
 }
 .ide-offer small {
@@ -1141,5 +1141,54 @@
   }
   .ide-tests ol {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- code + brainrot split ---------- */
+.ide-split {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+.ide-split .ide-code {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.ide-rot-slot {
+  flex: 0 0 38%;
+  min-width: 220px;
+  display: flex;
+  align-self: flex-end;
+  height: min(100%, 300px);
+}
+.ide-rot {
+  position: relative;
+  flex: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 0 40px -8px var(--pink);
+  animation: continue-in 0.35s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+.ide-rot canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ide-rot span {
+  position: absolute;
+  left: 8px;
+  top: 7px;
+  font: 400 9px/1 var(--mono);
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.75);
+}
+@media (max-width: 900px) {
+  .ide-rot-slot {
+    display: none;
   }
 }

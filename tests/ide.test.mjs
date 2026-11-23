@@ -30,7 +30,11 @@ function floor(t) {
           ? true
           : ["tier", "heat", "combo", "intensity"].includes(key)
             ? 0
-            : () => 0,
+            : key === "speed" || key === "mult"
+              ? 1
+              : key === "fever"
+                ? false
+                : () => 0,
     },
   );
   const calls = { allIn: [], fund: 0 };

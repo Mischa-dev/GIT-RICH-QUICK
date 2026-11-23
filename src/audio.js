@@ -126,7 +126,8 @@ export function soundSystem(store) {
     next,
     beat = 0,
     heat = 0,
-    tempo = 126;
+    tempo = 126,
+    fever = false;
   let effects = store.get("sound.enabled", true),
     music = store.get("music.enabled", true);
   // Browsers refuse audio before the first gesture; don't even try.
@@ -227,6 +228,21 @@ export function soundSystem(store) {
       noise(at, len, 0.05, 1200, output, "bandpass");
       return;
     }
+    if (key === "airhorn") {
+      // Three detuned saws, three blasts. You know the one.
+      for (const [off, len] of [
+        [0, 0.16],
+        [0.2, 0.16],
+        [0.4, 0.55],
+      ])
+        for (const hz of [466, 554, 698])
+          note(hz * 1.04, at + off, len, 0.07, "sawtooth", hz * 0.97);
+      return;
+    }
+    if (key === "siren") {
+      for (let i = 0; i < 4; i++) note(i % 2 ? 620 : 880, at + i * 0.22, 0.22, 0.07, "square", i % 2 ? 880 : 620);
+      return;
+    }
     if (key === "inhale") {
       // Crackle rising as the coil heats.
       const len = opts.length || 1.2;
@@ -281,7 +297,13 @@ export function soundSystem(store) {
       if (heat > 0.55)
         note(4 * root * 2 ** (lead[(step * 3) % 16] / 12), next, 0.05, 0.02, "square", 0, bus);
       if (heat > 0.8 && (step === 14 || step === 15)) note(115, next, 0.08, 0.14, "sine", 40, bus);
-      next += 60 / tempo / 4;
+      if (fever) {
+        // Double-time: a hard kick on every eighth and a rising acid line.
+        if (step % 2 === 0) note(150, next, 0.07, 0.2, "sine", 38, bus);
+        if (step % 4 === 2) noise(next, 0.05, 0.06, 5000, bus);
+        note(root * 4 * 2 ** (((step * 5) % 12) / 12), next, 0.05, 0.03, "sawtooth", 0, bus);
+      }
+      next += 60 / Math.min(190, fever ? tempo * 1.38 : tempo) / 4;
       beat++;
     }
   }
@@ -312,6 +334,9 @@ export function soundSystem(store) {
     /** Music follows the player's heart rate. */
     setTempo(bpm) {
       tempo = Math.max(96, Math.min(184, Number(bpm) || 126));
+    },
+    setFever(on) {
+      fever = !!on;
     },
     setHeat(value) {
       const v = Math.max(0, Math.min(1, value));

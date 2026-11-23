@@ -573,7 +573,8 @@ html.snare .panel-title span {
 }
 html.hat .topbar,
 html.hat .statusbar {
-  filter: hue-rotate(40deg) brightness(1.15);
+  /* Hue only: fast pulses must not change brightness. */
+  filter: hue-rotate(40deg);
 }
 
 /* RGB-split glitch on big moments. */
@@ -646,5 +647,189 @@ html[data-intensity="0"] .ide::after {
   html.hat .topbar,
   html.hat .statusbar {
     filter: none;
+  }
+}
+
+/* ==========================================================================
+   FEVER — the bonus round. Everything on, nothing subtle.
+   ========================================================================== */
+html.fever .app {
+  animation: fever-hue 2.4s linear infinite;
+}
+@keyframes fever-hue {
+  from {
+    filter: hue-rotate(0deg) saturate(1.5) contrast(1.08);
+  }
+  to {
+    filter: hue-rotate(360deg) saturate(1.5) contrast(1.08);
+  }
+}
+html.fever.kick .app {
+  animation:
+    fever-hue 2.4s linear infinite,
+    fever-rock 0.16s ease-out;
+}
+@keyframes fever-rock {
+  0% {
+    scale: 1.022;
+    rotate: 0.5deg;
+  }
+  50% {
+    rotate: -0.4deg;
+  }
+}
+html.fever .ide,
+html.fever .g-panel,
+html.fever .topbar > * {
+  border-color: transparent;
+  box-shadow:
+    0 0 0 2px #fff,
+    0 0 40px 2px var(--pink),
+    0 0 90px -10px var(--cyan);
+}
+html.fever .hud-hype {
+  background: linear-gradient(90deg, #ff2bd6, #ff7a00, #ffe500);
+}
+html.fever .hud-hype-name,
+html.fever .hud-hype-mult,
+html.fever .hud-hype-label {
+  color: #000;
+  text-shadow: none;
+}
+html.fever .hud-hype-fill {
+  background: #000;
+  box-shadow: none;
+}
+html.fever .ide::before,
+html.fever .ide::after {
+  --bulb: #fff;
+  animation:
+    chase 0.09s steps(1) infinite,
+    hue 0.6s linear infinite;
+}
+/* The crash after. Grey, slow, quiet. You'll want it back. */
+html.comedown .app {
+  filter: grayscale(1) brightness(0.62) contrast(0.9);
+  transition: filter 0.9s ease-out;
+}
+html:not(.comedown):not(.fever) .app {
+  transition: filter 1.4s ease-in;
+}
+html.comedown .backdrop,
+html.comedown .fx-marquee {
+  filter: grayscale(1) brightness(0.5);
+}
+/* One inverted frame. */
+html.fx-impact .app {
+  filter: invert(1) hue-rotate(180deg) !important;
+  scale: 1.035;
+  transition: none;
+}
+
+/* Giant type scrolling behind everything once you're hot. */
+.fx-marquee {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  display: grid;
+  align-content: space-around;
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.fx-marquee[data-on="1"] {
+  opacity: calc(0.1 + var(--heat) * 0.22);
+}
+html.fever .fx-marquee {
+  opacity: 0.55;
+}
+.fx-marquee div {
+  white-space: nowrap;
+  font: italic 900 clamp(120px, 24vh, 300px) / 0.82 var(--display);
+  color: transparent;
+  -webkit-text-stroke: 2px var(--glow);
+}
+.fx-marquee span {
+  display: inline-block;
+  animation: marquee-big 14s linear infinite;
+}
+.fx-marquee div:nth-child(2) span {
+  animation-direction: reverse;
+  animation-duration: 10s;
+}
+html.fever .fx-marquee span {
+  animation-duration: 3.5s;
+}
+html.fever .fx-marquee div {
+  -webkit-text-stroke: 3px #fff;
+}
+@keyframes marquee-big {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Stickers: slammed on at an angle, overlapping, gone in a second. */
+.fx-sticker {
+  position: absolute;
+  translate: -50% -50%;
+  rotate: var(--r, -6deg);
+  padding: 6px 14px 7px;
+  border-radius: 8px;
+  font: italic 900 34px/1 var(--display);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: #000;
+  background: var(--yellow);
+  box-shadow:
+    0 0 0 3px #000,
+    6px 6px 0 #000,
+    0 0 30px -4px currentColor;
+  animation: sticker 1.3s cubic-bezier(0.2, 1.6, 0.3, 1) forwards;
+}
+.fx-st-pink {
+  background: var(--pink);
+  color: #fff;
+}
+.fx-st-cyan {
+  background: var(--cyan);
+}
+.fx-st-lime {
+  background: var(--lime);
+}
+.fx-st-red {
+  background: var(--red);
+  color: #fff;
+}
+@keyframes sticker {
+  0% {
+    scale: 3.4;
+    opacity: 0;
+  }
+  12% {
+    scale: 0.92;
+    opacity: 1;
+  }
+  20%,
+  78% {
+    scale: 1;
+    opacity: 1;
+  }
+  100% {
+    scale: 0.6;
+    opacity: 0;
+    translate: -50% -160%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.fever .app,
+  html.fever.kick .app,
+  .fx-marquee span {
+    animation: none !important;
+  }
+  html.fx-impact .app {
+    filter: none !important;
+    scale: 1;
   }
 }
