@@ -950,3 +950,196 @@
     min-width: 0;
   }
 }
+
+/* ---------- streak ---------- */
+.ide-streak {
+  margin-left: auto;
+  margin-right: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--orange), var(--red));
+  color: #fff;
+  font: italic 900 16px/1 var(--display);
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 18px -2px var(--orange);
+  animation: throb 0.6s ease-in-out infinite;
+}
+.ide-streak + .ide-who {
+  margin-left: 0;
+}
+.ide-risk {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #1c0d00;
+  font: italic 900 22px/1 var(--display);
+  letter-spacing: 0.05em;
+  animation: blink 0.35s steps(1) infinite;
+}
+
+/* ---------- test reel ---------- */
+.ide-tests {
+  position: absolute;
+  inset: 120px 18px 14px;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(4, 14, 8, 0.92);
+  box-shadow:
+    inset 0 0 0 1px rgba(182, 255, 46, 0.35),
+    0 0 50px -10px rgba(182, 255, 46, 0.5);
+  backdrop-filter: blur(6px);
+  animation: continue-in 0.3s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+.ide-tests-head {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+}
+.ide-tests-count {
+  font: italic 900 clamp(54px, 6vw, 96px) / 0.85 var(--display);
+  color: var(--lime);
+  text-shadow: 0 0 26px rgba(182, 255, 46, 0.6);
+  font-variant-numeric: tabular-nums;
+}
+.ide-tests-head span {
+  font: 400 13px/1 var(--mono);
+  letter-spacing: 0.25em;
+  color: var(--lime);
+}
+.ide-tests ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3px 14px;
+  align-content: start;
+  overflow: hidden;
+  font: 400 11.5px/1.45 var(--mono);
+}
+.ide-tests li {
+  color: #3c5a40;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ide-tests li::before {
+  content: "○ ";
+}
+.ide-tests li.ok {
+  color: #c9ffb8;
+}
+.ide-tests li.ok::before {
+  content: "✓ ";
+  color: var(--lime);
+}
+.ide-tests li.red {
+  color: #fff;
+  background: var(--red);
+  animation: blink 0.25s steps(1) infinite;
+}
+.ide-tests li.red::before {
+  content: "✕ ";
+}
+.ide-tests.fail {
+  background: rgba(30, 0, 8, 0.94);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 46, 85, 0.6),
+    0 0 60px -10px var(--red);
+}
+.ide-tests.fail .ide-tests-count,
+.ide-tests.fail .ide-tests-head span {
+  color: var(--red);
+  text-shadow: 0 0 26px var(--red);
+}
+
+/* ---------- side bet ---------- */
+.ide-offer {
+  position: absolute;
+  top: 128px;
+  right: 16px;
+  z-index: 4;
+  width: min(300px, 70%);
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 229, 0, 0.96), rgba(255, 122, 0, 0.96));
+  color: #1c0d00;
+  box-shadow: 0 18px 50px -12px var(--orange);
+  overflow: hidden;
+  animation: offer-in 0.4s cubic-bezier(0.2, 1.7, 0.4, 1);
+}
+@keyframes offer-in {
+  from {
+    transform: translateX(120%) rotate(8deg);
+  }
+}
+.ide-offer small {
+  font: 400 10px/1 var(--mono);
+  letter-spacing: 0.3em;
+}
+.ide-offer b {
+  font: italic 900 28px/0.95 var(--display);
+}
+.ide-offer span {
+  font: italic 900 18px/1 var(--display);
+}
+.ide-offer-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.ide-offer-actions .g-btn {
+  min-height: 38px;
+  font-size: 18px;
+}
+.ide-offer-actions .ghost {
+  --a: rgba(0, 0, 0, 0.18);
+  --b: rgba(0, 0, 0, 0.08);
+  --txt: #1c0d00;
+}
+.ide-offer-timer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 5px;
+  width: 100%;
+  background: #1c0d00;
+  transform-origin: left;
+  animation: offer-time var(--left, 4s) linear forwards;
+}
+@keyframes offer-time {
+  to {
+    transform: scaleX(0);
+  }
+}
+.ide-bets {
+  position: absolute;
+  left: 18px;
+  bottom: 12px;
+  z-index: 3;
+  display: flex;
+  gap: 6px;
+}
+.ide-betchip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 229, 0, 0.18);
+  box-shadow: inset 0 0 0 1px var(--yellow);
+  color: var(--yellow);
+  font: italic 900 14px/1 var(--display);
+  letter-spacing: 0.05em;
+}
+@media (max-width: 760px) {
+  .ide-tests {
+    inset: 90px 10px 10px;
+  }
+  .ide-tests ol {
+    grid-template-columns: 1fr;
+  }
+}

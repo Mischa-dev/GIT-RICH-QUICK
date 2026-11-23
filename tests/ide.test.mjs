@@ -18,6 +18,7 @@ function floor(t) {
   t.mock.method(browser, "clearTimeout", (id) => timers.delete(id));
   t.mock.method(performance, "now", () => now);
   t.mock.timers.enable({ apis: ["setTimeout", "setInterval"] });
+  t.mock.method(Math, "random", () => 0.99);
   const before = { window: globalThis.window, document: globalThis.document };
   Object.assign(globalThis, { window: browser, document });
   document.body.innerHTML = '<div id="ide"></div>';
@@ -120,4 +121,29 @@ test("AUTO-PROMPT re-sends its text every time the agent ships", (t) => {
   assert.equal(f.state(), "shipped");
   t.mock.timers.tick(3000);
   assert.equal(f.state(), "shipped", "×1 means once");
+});
+
+test("side bets settle on your own build and ship streaks stack", (t) => {
+  const f = floor(t);
+  f.api.earn(20000, "Fixture bankroll");
+  f.$('[data-desk-action="start"]').click();
+  // Advance into Plan: the side bet appears.
+  for (let i = 0; i < 40 && !f.$(".ide-offer"); i++) f.advance(250);
+  assert.ok(f.$(".ide-offer"), "an ALL GREEN side bet is offered mid-run");
+  const before = f.api.state.tokens;
+  const stake = Number(f.$('[data-desk-action="bet"]').textContent.replace(/\D/g, ""));
+  f.$('[data-desk-action="bet"]').click();
+  assert.equal(f.api.state.tokens, before - stake);
+  f.advance(20000);
+  assert.equal(f.state(), "shipped");
+  assert.ok(
+    f.api.state.events.some((e) => /Side bet hit/.test(e.text) && e.amount === stake * 2),
+    "tests passed first try, so the bet paid 2×",
+  );
+  assert.match(f.$(".ide-streak").textContent, /×1/);
+  f.$('[data-desk-action="next"]').click();
+  f.$('[data-desk-action="start"]').click();
+  f.advance(20000);
+  assert.match(f.$(".ide-streak").textContent, /×2/);
+  assert.ok(f.api.state.events.some((e) => /Ship streak ×2/.test(e.text)));
 });

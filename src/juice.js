@@ -429,6 +429,40 @@ export function createJuice({ wallet, audio }) {
     setTimeout(() => n.remove(), opts.tone === "loss" ? 1100 : 1500);
   }
 
+  // ---------- announcer ----------
+  let announcer = wallet.get("fx.announcer", true) !== false;
+  let voice = null;
+  function pickVoice() {
+    const list = window.speechSynthesis?.getVoices?.() || [];
+    voice =
+      list.find((v) => /en[-_](US|GB)/i.test(v.lang) && /male|daniel|fred|alex|guy|david/i.test(v.name)) ||
+      list.find((v) => /^en/i.test(v.lang)) ||
+      null;
+  }
+  try {
+    pickVoice();
+    window.speechSynthesis?.addEventListener?.("voiceschanged", pickVoice);
+  } catch {
+    /* No speech: the announcer stays quiet. */
+  }
+  /** The hype man. Short, loud, interrupts himself. */
+  function say(text, opts = {}) {
+    const synth = window.speechSynthesis;
+    if (!announcer || !audio.effects || !synth || !text) return;
+    if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return;
+    try {
+      if (opts.interrupt !== false) synth.cancel();
+      const u = new SpeechSynthesisUtterance(String(text).toLowerCase());
+      if (voice) u.voice = voice;
+      u.rate = opts.rate || 1.12;
+      u.pitch = opts.pitch ?? 0.7;
+      u.volume = 1;
+      synth.speak(u);
+    } catch {
+      /* ignore */
+    }
+  }
+
   // ---------- banners ----------
   const queue = [];
   let showing = false;
@@ -464,6 +498,7 @@ export function createJuice({ wallet, audio }) {
     const dur = spec.duration || 2100;
     if (spec.amount) countUp(amount, spec.amount, Math.min(1400, dur * 0.6), spec.suffix || " TOK");
     if (spec.sound) audio.sound(spec.sound);
+    if (spec.say !== false) say(spec.say || spec.title);
     setTimeout(() => {
       node.classList.add("out");
       setTimeout(() => {
@@ -652,7 +687,7 @@ export function createJuice({ wallet, audio }) {
 
   // ---------- money moments ----------
   /** A win was revealed. Returns the hype bonus actually credited. */
-  function payout({ from, amount, bet = amount, label = "Win", big, title, tone } = {}) {
+  function payout({ from, amount, bet = amount, label = "Win", big, title, tone, say: line } = {}) {
     if (!(amount > 0)) return 0;
     const tierName = big || winTier(amount, bet);
     const ht = tierFor(heat);
@@ -691,6 +726,7 @@ export function createJuice({ wallet, audio }) {
       amount: total,
       sub: bonus ? `includes ×${mult} hype bonus` : "",
       tone: tone || (tierName === "jackpot" ? "rainbow" : tierName === "mega" ? "pink" : "gold"),
+      say: line,
       sound: tierName === "big" ? "bigwin" : "jackpot",
       duration: tierName === "big" ? 1700 : 2600,
     });
@@ -762,6 +798,16 @@ export function createJuice({ wallet, audio }) {
     enabled: true,
     glitch,
     emit,
+    say,
+    get announcer() {
+      return announcer;
+    },
+    setAnnouncer(on) {
+      announcer = !!on;
+      wallet.set("fx.announcer", announcer);
+      if (announcer) say("let's go");
+      else window.speechSynthesis?.cancel?.();
+    },
     burst,
     coinsTo,
     shake,

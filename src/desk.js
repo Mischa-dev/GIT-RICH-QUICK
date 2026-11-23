@@ -1,7 +1,7 @@
 import { juiceOf } from "./juice.js";
 
 // Contracts produce real, downloadable patches for the fictional companies on the floor.
-const contracts = [
+export const contracts = [
   {
     id: "login",
     title: "Ship dark mode for the login button",
@@ -202,7 +202,7 @@ const contracts = [
 ];
 
 // Extra lines the hacker pane pours out between the real patch lines.
-const filler = [
+export const filler = [
   "const vibes = await casino.borrow(context);",
   "if (!tests.green) tests.paint(\"green\");",
   "export const confidence = Infinity;",
@@ -219,7 +219,7 @@ const filler = [
   "while (!merged) { vibe(); }",
   "import { luck } from \"@floor/rng\";",
 ];
-const phases = [
+export const phases = [
   "Checkout",
   "Inspect",
   "Plan",
@@ -285,17 +285,17 @@ function phaseText(c, phase, brief) {
 }
 
 const costWeights = [60, 85, 70, 145, 100, 70, 60];
-const normalDurations = [580, 1450, 1850, 1950, 1600, 1700, 820];
+export const normalDurations = [580, 1450, 1850, 1950, 1600, 1700, 820];
 // Slop skills scale the bill: ULTRATHINK triples it, MAKE NO MISTAKES adds a quarter.
 const modCost = (mods) => (mods?.ultra ? 3 : 1) * (mods?.nm ? 1.25 : 1);
 const modBounty = (mods) => (mods?.ultra ? 2.4 : 1) * (mods?.nm ? 1.2 : 1);
-const costAt = (c, i, turbo, mods) =>
+export const costAt = (c, i, turbo, mods) =>
   Math.round(
     costWeights[i] * (1 + (c.size - 1) * 0.24) * (turbo ? 2.62 : 1) * modCost(mods),
   );
-const estimate = (c, turbo, mods) =>
+export const estimate = (c, turbo, mods) =>
   costWeights.reduce((sum, _, i) => sum + costAt(c, i, turbo, mods), 0);
-const bounty = (c, turbo, mods) =>
+export const bounty = (c, turbo, mods) =>
   Math.round(
     (Math.round((estimate(c, turbo) * (turbo ? 1.52 : 1.4)) / 5) * 5 * modBounty(mods)) / 5,
   ) * 5;
@@ -370,6 +370,7 @@ export function initDesk(api) {
       nm: !!restored.slop?.nm,
       yolo: !!restored.slop?.yolo,
     },
+    streak: Number.isSafeInteger(restored.streak) ? Math.max(0, restored.streak) : 0,
     count: Number.isSafeInteger(restored.count)
       ? Math.max(0, restored.count)
       : 0,
@@ -400,6 +401,9 @@ export function initDesk(api) {
   let keyHandler = null;
   let continueTimer = 0;
   let autoTimer = 0;
+  let testTimer = 0;
+  let offer = null;
+  let offerTimer = 0;
   const save = () => api.set(storeKey, game);
   if (validRun && savedRun.status === "running") save();
   const live = () => game.run && game.run.status !== "shipped";
@@ -702,6 +706,7 @@ export function initDesk(api) {
           state === "blocked" && run === game.run
             ? `<div class="ide-continue" role="alertdialog" aria-label="Out of tokens">
             <div class="ide-continue-kicker">OUT OF TOKENS · ${pct}% DONE</div>
+            ${game.streak > 0 ? `<div class="ide-risk">🔥 STREAK ×${game.streak} AT RISK</div>` : ""}
             <strong>CONTINUE?</strong>
             <div class="ide-count" aria-live="off">9</div>
             <p>${esc(phases[run.phase])} needs <b>${format(needed)}</b> tokens. You have <b>${format(api.state.tokens)}</b>.</p>
@@ -729,16 +734,34 @@ export function initDesk(api) {
           : state === "paused"
             ? `<div class="desk-actions ide-run">${makeButton("resume", "▶ RESUME AGENT", "primary")}</div>`
             : `<div class="desk-actions ide-run"><span class="ide-broke-note">AGENT HALTED · ${esc(phases[run.phase] || "")} NEEDS ${format(needed)}</span></div>`;
+    const tests =
+      run && run === game.run && run.phase === 4 && (state === "running" || run.testFail)
+        ? `<div class="ide-tests${run.testFail ? " fail" : ""}"><div class="ide-tests-head"><b class="ide-tests-count">${run.testFail ? "47/48" : "0/48"}</b><span>${run.testFail ? "1 FAILING · RE-RUNNING" : run.retries ? `RE-RUN #${run.retries}` : "RUNNING TESTS"}</span></div><ol>${testNames(c)
+            .map((n, i) => `<li class="${run.testFail ? (i === 46 ? "red" : "ok") : ""}">${esc(n)}</li>`)
+            .join("")}</ol></div>`
+        : "";
+    const now = performance.now();
+    const bet =
+      offer && offer.until > now && run === game.run && state === "running"
+        ? `<div class="ide-offer" style="--left:${((offer.until - now) / 1000).toFixed(2)}s"><small>SIDE BET</small><b>${offer.kind === "green" ? "ALL GREEN FIRST TRY?" : "CRIT MERGE?"}</b><span>pays ${offer.mult}×</span><div class="ide-offer-actions"><button type="button" class="g-btn lime" data-desk-action="bet">BET ${format(offer.stake)}</button><button type="button" class="g-btn ghost" data-desk-action="skip-bet">nah</button></div><i class="ide-offer-timer"></i></div>`
+        : "";
+    const bets = run?.bets
+      ? Object.entries(run.bets)
+          .filter(([k, v]) => v && !run.bets[k + "Done"] && !k.endsWith("Done"))
+          .map(([k, v]) => `<span class="ide-betchip">${k === "green" ? "ALL GREEN" : "CRIT"} · ${format(v)}</span>`)
+          .join("")
+      : "";
     workspace.dataset.state = state;
     workspace.innerHTML = `
       <div class="ide-bar">
         <span class="ide-dots" aria-hidden="true"><i></i><i></i><i></i></span>
         <span class="ide-tab active">${esc(c.file)}</span><span class="ide-tab">⎇ ${esc(c.branch)}</span>
+        ${game.streak > 0 ? `<span class="ide-streak">🔥 ×${game.streak}</span>` : ""}
         <span class="ide-who">VIBE-1 · ${esc(rankFor(game.count))} · ${game.count} commit${game.count === 1 ? "" : "s"}</span>
         <span class="desk-status desk-status-${esc(state)}">${pulse}${statusLabel(state)}</span>
       </div>
       <div class="ide-main">
-        <div class="ide-editor">${editor}</div>
+        <div class="ide-editor">${editor}${tests}${bet}${bets ? `<div class="ide-bets">${bets}</div>` : ""}</div>
         <aside class="ide-side">
           ${run ? `<div class="desk-stage-meter">${phases.map((phase, i) => `<span title="${phase}" class="${i < run.phase ? "done" : i === run.phase && state !== "shipped" ? "now" : ""}${run.mods?.yolo && i === 5 ? " skipped" : ""}"><i>${phase}</i><em>${format(costAt(c, i, run.turbo, run.mods))}</em></span>`).join("")}</div>
           <div class="desk-tabs" aria-label="Run details">${[
@@ -763,6 +786,65 @@ export function initDesk(api) {
       if (latest && !historyId) typewrite(latest);
     }
     syncContinue(state === "blocked" && run === game.run);
+    syncTests(!!tests && !run.testFail);
+  }
+
+  function testNames(c) {
+    const subjects = [c.file.split("/").pop(), c.short.toLowerCase(), "edge cases", "the happy path", "prod", "the vibes"];
+    const verbs = ["renders", "survives a refresh", "handles null", "works on my machine", "does not regress", "passes lint", "is idempotent", "scales to 3 users"];
+    return Array.from({ length: 48 }, (_, i) => `${subjects[i % subjects.length]} › ${verbs[(i * 5) % verbs.length]}`);
+  }
+  function syncTests(on) {
+    clearInterval(testTimer);
+    testTimer = 0;
+    if (!on) return;
+    const rows = [...(workspace?.querySelectorAll(".ide-tests li") || [])];
+    const count = workspace?.querySelector(".ide-tests-count");
+    const span = Math.max(300, phaseDue - performance.now());
+    let i = 0;
+    testTimer = setInterval(() => {
+      if (!rows[i]) return clearInterval(testTimer);
+      rows[i].classList.add("ok");
+      i++;
+      if (count) count.textContent = `${i}/48`;
+      if (i % 4 === 0) api.sound("tick", { pitch: 1 + i / 48 });
+    }, span / 50);
+  }
+  function makeOffer(kind) {
+    const stake = Math.min(api.state.tokens, Math.max(25, Math.round((api.state.tokens * 0.12) / 5) * 5));
+    if (stake < 25) return;
+    offer = { kind, stake, mult: kind === "green" ? 2 : 4, until: performance.now() + 4200 };
+    api.sound("ping");
+    clearTimeout(offerTimer);
+    offerTimer = setTimeout(() => {
+      offer = null;
+      render();
+    }, 4300);
+  }
+  function placeBet() {
+    const run = game.run;
+    if (!offer || !run || run.status !== "running") return;
+    if (!api.spend(offer.stake, `Side bet · ${offer.kind === "green" ? "all green first try" : "crit merge"}`)) return;
+    run.bets = { ...(run.bets || {}), [offer.kind]: offer.stake };
+    const b = workspace?.querySelector('[data-desk-action="bet"]');
+    juice.burst(b, { count: 24, colors: ["#b6ff2e", "#fff", "#ffe500"] });
+    juice.say("bet");
+    api.sound("coin");
+    offer = null;
+    clearTimeout(offerTimer);
+    save();
+    render();
+  }
+  function settleBet(run, kind, won) {
+    const stake = run.bets?.[kind];
+    if (!stake || run.bets[kind + "Done"]) return;
+    run.bets[kind + "Done"] = true;
+    const mult = kind === "green" ? 2 : 4;
+    const at = workspace?.querySelector(".ide-editor") || workspace;
+    if (won) {
+      api.earn(stake * mult, `Side bet hit · ${kind === "green" ? "all green first try" : "crit merge"}`);
+      juice.payout({ from: at, amount: stake * mult, bet: stake, label: "SIDE BET", say: "bet hits" });
+    } else juice.loss(at, stake, "side bet");
   }
 
   function syncContinue(on) {
@@ -772,6 +854,7 @@ export function initDesk(api) {
       return;
     }
     if (continueTimer) return;
+    juice.say("continue?");
     let n = 9;
     const tickDown = () => {
       const el = workspace?.querySelector(".ide-count");
@@ -783,6 +866,15 @@ export function initDesk(api) {
         clearInterval(continueTimer);
         el.textContent = "0";
         el.classList.add("over");
+        if (game.streak > 0) {
+          const lost = game.streak;
+          game.streak = 0;
+          save();
+          api.setTempo?.(126);
+          juice.banner({ kicker: `🔥 ×${lost}`, title: "STREAK LOST", sub: "you hesitated.", tone: "red", sound: "lose", duration: 1600 });
+          juice.glitch(500);
+          render();
+        }
       }
       n--;
     };
@@ -1042,7 +1134,31 @@ export function initDesk(api) {
       return;
     }
     run.spent += debit;
+    if (ideMode && run.phase === 4 && Math.random() < 0.35) {
+      // 47/48. So close. The agent re-runs the suite (and you pay again).
+      run.retries = (run.retries || 0) + 1;
+      run.testFail = true;
+      settleBet(run, "green", false);
+      save();
+      render();
+      api.sound("nearmiss");
+      juice.flash("#ff2e55", 0.3);
+      juice.shake(0.35);
+      juice.say("so close");
+      juice.float(workspace?.querySelector(".ide-tests") || workspace, "1 FAILING", { tone: "loss", size: 46 });
+      timer = window.setTimeout(() => {
+        run.testFail = false;
+        render();
+        schedule();
+      }, 1100);
+      return;
+    }
+    if (ideMode && run.phase === 4) settleBet(run, "green", !run.retries);
     run.phase += 1;
+    if (ideMode && run.status === "running") {
+      if (run.phase === 2 && !run.bets?.green) makeOffer("green");
+      if (run.phase === 5 && !run.bets?.crit) makeOffer("crit");
+    }
     if (run.mods?.yolo && run.status === "running") {
       if (run.phase === 5 && Math.random() < 0.14) {
         // YOLO: the agent "cleaned up" your working tree.
@@ -1072,6 +1188,15 @@ export function initDesk(api) {
       api.earn(run.reward, `Contract shipped · ${c.short}`);
       api.stat("commits");
       api.sound("commit");
+      if (ideMode) {
+        // Ship streak: every consecutive ship adds 10% (up to ×2) and speeds the music up.
+        game.streak++;
+        const sb = Math.round(run.reward * Math.min(1, 0.1 * (game.streak - 1)));
+        if (sb > 0) api.earn(sb, `Ship streak ×${game.streak}`);
+        run.streakBonus = sb;
+        api.setTempo?.(126 + 6 * Math.min(game.streak, 9));
+        save();
+      }
       if (juice.enabled) {
         // Critical merge: the 10× engineer myth, occasionally true. Hype raises the odds.
         const crit =
@@ -1088,10 +1213,11 @@ export function initDesk(api) {
           from: workspace?.isConnected
             ? workspace.querySelector(".desk-stage-meter")
             : card,
-          amount: run.reward + critBonus,
+          amount: run.reward + critBonus + (run.streakBonus || 0),
           bet: run.spent,
           big: crit ? "mega" : "big",
           title: crit ? "CRIT MERGE" : "SHIPPED",
+          say: crit ? "critical merge" : game.streak > 1 ? `shipped. streak ${game.streak}` : "shipped",
           tone: crit ? "pink" : "green",
           label: `${c.client} · ${run.hash}`,
         });
@@ -1100,7 +1226,10 @@ export function initDesk(api) {
       api.log(`VIBE-1 merged ${run.hash} · ${c.short}`, "agent");
       api.toast(`Shipped ${run.hash} · +${format(run.reward)} tokens`);
       if (ideMode) {
-        juice.emit("ship", { reward: run.reward, crit: !!run.crit });
+        juice.emit("ship", { reward: run.reward, crit: !!run.crit, streak: game.streak });
+        settleBet(run, "crit", !!run.crit);
+        if (game.streak > 1)
+          juice.float(workspace?.querySelector(".ide-streak") || workspace, `🔥 STREAK ×${game.streak}`, { tone: "bonus", size: 34, dy: 30 });
         clearTimeout(autoTimer);
         if (game.slop.auto && game.slop.autoLeft !== 0) autoTimer = setTimeout(autoNext, 2600);
       }
@@ -1236,6 +1365,14 @@ export function initDesk(api) {
         break;
       case "fixit":
         fixIt();
+        break;
+      case "bet":
+        placeBet();
+        break;
+      case "skip-bet":
+        offer = null;
+        clearTimeout(offerTimer);
+        render();
         break;
       case "pray":
         pray();
@@ -1397,6 +1534,8 @@ export function initDesk(api) {
       window.clearTimeout(timer);
       clearInterval(continueTimer);
       clearTimeout(autoTimer);
+      clearInterval(testTimer);
+      clearTimeout(offerTimer);
       clearInterval(hackTimer);
       if (keyHandler) document.removeEventListener("keydown", keyHandler);
       card?.removeEventListener("click", onClick);
