@@ -1,3 +1,5 @@
+import { juiceOf } from "./juice.js";
+
 const cabinets = {
   merge: {
     title: "Merge Conflict",
@@ -166,6 +168,7 @@ function drawFlight(canvas, elapsed, value, status) {
 }
 
 export function initFloor(api) {
+  const juice = juiceOf(api);
   const grid = document.querySelector("#floor-cards");
   const preferences = api.get("floor.preferences", {});
   const last = api.get("floor.receipts", {});
@@ -188,6 +191,8 @@ export function initFloor(api) {
   let wheelRotation = 0;
   let playSequence = 0;
   let flightStage = null;
+  let mergeStreak = 0;
+  let wheelWatch = 0;
   const cards = new Map();
   const money = (value) => api.format(value);
 
@@ -206,12 +211,33 @@ export function initFloor(api) {
       title + " · " + (net >= 0 ? "+" : "−") + money(Math.abs(net)) + " T",
       net > 0 ? "win" : "game",
     );
+    if (juice.enabled) return; // react() handles the show at reveal time.
     if (net > 0) {
       api.sound(paid / wager >= 5 ? "bigwin" : "win");
       api.fx(paid / wager >= 5 ? "jackpot" : "win");
     } else {
       api.sound(net === 0 ? "tick" : "lose");
     }
+  }
+  // Effects for a settled round. `at` is an element or a screen point.
+  function react(id, wager, paid, at, big) {
+    if (!juice.enabled) return;
+    const label = cabinets[id].title;
+    if (paid > wager) {
+      juice.payout({ from: at, amount: paid, bet: wager, label, big });
+    } else if (paid) {
+      juice.payout({ from: at, amount: paid, bet: wager, label });
+      api.sound("tick");
+    } else {
+      juice.loss(at, wager);
+      juice.shake(0.35);
+      juice.flash("#ff4d6d", 0.2);
+      api.sound("lose");
+    }
+  }
+  function pointOf(el) {
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
   }
   function wager(id) {
     if (api.spend(stake, cabinets[id].title + " wager")) {
@@ -231,12 +257,12 @@ export function initFloor(api) {
 
   function wagerBar(locked = false) {
     const bar = node("div", "fl-wager");
-    bar.append(controlLabel("Your wager"));
+    bar.append(controlLabel("Your bet"));
     const options = node("div", "fl-stakes");
     options.setAttribute("role", "group");
     options.setAttribute("aria-label", "Wager in tokens");
     for (const amount of stakes) {
-      const option = button("fl-stake", String(amount), () => {
+      const option = button("fl-stake fl-chip", String(amount), () => {
         if (locked || reveal || (gameId === "deploy" && flight)) return;
         stake = amount;
         rememberPreferences();
@@ -244,6 +270,7 @@ export function initFloor(api) {
         paint();
       });
       option.setAttribute("aria-label", amount + " tokens");
+      option.dataset.chip = String(stakes.indexOf(amount));
       option.setAttribute("aria-pressed", String(stake === amount));
       option.disabled = locked;
       options.append(option);
@@ -314,7 +341,38 @@ export function initFloor(api) {
     rememberPreferences();
     reveal = { id: "merge", current, next };
     logPayout("merge", playedStake, paid);
+    const streak = tie ? mergeStreak : won ? mergeStreak + 1 : 0;
+    const broke = !tie && !won && mergeStreak >= 2 ? mergeStreak : 0;
+    mergeStreak = streak;
     paint();
+    if (!juice.enabled) return;
+    const card = host?.querySelector(".fl-battle .fl-revision:last-child");
+    juice.shake(0.18);
+    api.sound("thunk");
+    if (won) {
+      juice.hype(3 + streak * 2.5);
+      api.sound("step", { pitch: 1 + Math.min(1.4, streak * 0.14) });
+      if (streak >= 2) {
+        const badge = host?.querySelector(".fl-streak");
+        juice.burst(badge, {
+          kind: "star",
+          count: 10 + streak * 4,
+          colors: ["#ffe066", "#ff977f", "#fff"],
+        });
+        juice.pop(badge, "fx-pop");
+      }
+      if (streak >= 5 && streak % 5 === 0)
+        juice.banner({
+          kicker: "MERGE CONFLICT",
+          title: streak + " STREAK",
+          sub: "The codebase fears you",
+          tone: "fire",
+          sound: "tierup",
+          duration: 1300,
+        });
+    } else if (broke)
+      juice.float(card, "STREAK LOST ×" + broke, { tone: "loss", dy: -60 });
+    react("merge", playedStake, paid, card);
   }
 
   function renderMerge() {
@@ -322,12 +380,23 @@ export function initFloor(api) {
     const current = reveal?.id === "merge" ? reveal.current : base;
     const scene = node("div", "fl-merge-stage");
     const battle = node("div", "fl-battle");
+    const patch = cardFace(reveal?.next ?? null, "PATCH", !reveal);
+    if (reveal) patch.classList.add("fl-flip");
     battle.append(
       cardFace(current, "HEAD"),
       node("span", "fl-vs", "VS"),
-      cardFace(reveal?.next ?? null, "PATCH", !reveal),
+      patch,
     );
     scene.append(battle);
+    if (mergeStreak >= 1) {
+      const badge = node("div", "fl-streak");
+      badge.dataset.heat = String(Math.min(3, Math.floor(mergeStreak / 2)));
+      badge.append(
+        node("small", "", "STREAK"),
+        node("b", "", "×" + mergeStreak),
+      );
+      scene.append(badge);
+    }
     shell.append(
       scene,
       node(
@@ -340,11 +409,15 @@ export function initFloor(api) {
     if (reveal) {
       shell.append(
         receipt("merge"),
-        button("fl-action fl-primary", "Deal next revision  ↗", () => {
-          reveal = null;
-          api.sound("click");
-          paint();
-        }),
+        button(
+          "fl-action fl-primary g-btn big volt",
+          "Deal next revision ▶",
+          () => {
+            reveal = null;
+            api.sound("click");
+            paint();
+          },
+        ),
       );
     } else {
       const decisions = node("div", "fl-decisions");
@@ -352,8 +425,10 @@ export function initFloor(api) {
         const payout = Math.floor(
           (stake * 8) / (higher ? 9 - current : current - 1),
         );
-        const option = button("fl-action fl-direction", "", () =>
-          playMerge(higher),
+        const option = button(
+          "fl-action fl-direction g-btn big " + (higher ? "hot" : "ice"),
+          "",
+          () => playMerge(higher),
         );
         option.append(
           node("strong", "", higher ? "↑  Higher" : "↓  Lower"),
@@ -437,17 +512,71 @@ export function initFloor(api) {
       wheel.style.transform = "rotate(" + wheelRotation + "deg)";
     }
     const serial = playSequence;
+    if (wheel && juice.enabled && !reducedMotion()) watchWheel(wheel, serial);
     dismissTimer = setTimeout(
       () => {
         if (serial !== playSequence || gameId !== "roulette") return;
         reveal = null;
         dismissTimer = null;
-        api.sound(won ? (paid / playedStake >= 5 ? "bigwin" : "win") : "lose");
-        if (won) api.fx(paid / playedStake >= 5 ? "jackpot" : "win");
+        if (!juice.enabled) {
+          api.sound(
+            won ? (paid / playedStake >= 5 ? "bigwin" : "win") : "lose",
+          );
+          if (won) api.fx(paid / playedStake >= 5 ? "jackpot" : "win");
+        }
         paint();
+        if (juice.enabled) {
+          const wrap = host?.querySelector(".fl-wheel-wrap");
+          juice.shake(0.28);
+          api.sound("thunk");
+          juice.burst(host?.querySelector(".fl-wheel-needle"), {
+            count: 18,
+            colors: [suspects[responsible].color, "#fff"],
+          });
+          juice.pop(wrap, "fl-wheel-land");
+          react("roulette", playedStake, paid, wrap);
+        }
       },
       reducedMotion() ? 100 : 1500,
     );
+  }
+
+  // Tick once per sector the needle passes, reading the live CSS rotation.
+  function watchWheel(wheel, serial) {
+    cancelAnimationFrame(wheelWatch);
+    const wrap = wheel.parentElement;
+    const needle = wrap?.querySelector(".fl-wheel-needle");
+    const t0 = performance.now();
+    let prev = null,
+      acc = 0;
+    const frame = (now) => {
+      if (
+        serial !== playSequence ||
+        !wheel.isConnected ||
+        reveal?.id !== "roulette"
+      ) {
+        wrap?.classList.remove("fl-wheel-tension");
+        return;
+      }
+      const m = new DOMMatrixReadOnly(getComputedStyle(wheel).transform);
+      const angle = (Math.atan2(m.b, m.a) * 180) / Math.PI;
+      if (prev !== null) {
+        let d = angle - prev;
+        if (d < -180) d += 360;
+        if (d > 180) d -= 360;
+        acc += Math.abs(d);
+        while (acc >= 45) {
+          acc -= 45;
+          api.sound("tick", { pitch: 0.8 + Math.min(1, Math.abs(d) / 25) });
+          juice.pop(needle, "fl-needle-kick");
+        }
+        if (now - t0 > 700 && Math.abs(d) < 4)
+          wrap.classList.add("fl-wheel-tension");
+      }
+      prev = angle;
+      wheelWatch = requestAnimationFrame(frame);
+    };
+    wheelWatch = requestAnimationFrame(frame);
   }
 
   function renderRoulette() {
@@ -486,8 +615,8 @@ export function initFloor(api) {
     shell.append(wagerBar(!!spinning));
     const payout = Math.floor((stake * 8) / suspects[pick].count);
     const spin = button(
-      "fl-action fl-primary",
-      spinning ? "Assigning blame…" : "Spin for " + money(payout) + " T  ↗",
+      "fl-action fl-primary g-btn big hot",
+      spinning ? "Assigning blame…" : "Spin for " + money(payout) + " T ▶",
       playRoulette,
     );
     spin.disabled = !!spinning;
@@ -505,6 +634,23 @@ export function initFloor(api) {
     api.set("floor.flight", null);
     const paid = crashed ? 0 : creditedAt(playedStake, value);
     const displayValue = Math.floor(value * 100) / 100;
+    // Capture where the action is before the stage is repainted.
+    let figureAt = null,
+      rocketAt = null;
+    if (gameId === "deploy" && flightStage) {
+      figureAt = pointOf(flightStage.figure);
+      const c = flightStage.canvas,
+        r = c.getBoundingClientRect();
+      const p = Math.min(1, Math.log(Math.max(1, value)) / Math.log(ceiling));
+      rocketAt = {
+        x: r.left + ((27 + p * (c.width - 57)) / c.width) * r.width,
+        y:
+          r.top +
+          ((c.height - 23 - (c.height - 40) * (0.25 * p + 0.75 * p * p)) /
+            c.height) *
+            r.height,
+      };
+    }
     const result = {
       result: crashed ? "loss" : paid > playedStake ? "win" : "draw",
       head: crashed
@@ -530,6 +676,44 @@ export function initFloor(api) {
     if (gameId === "deploy" && host) paint();
     else api.toast(result.head);
     update();
+    if (!juice.enabled) return;
+    if (!figureAt) {
+      // Settled off-screen: keep it to sound.
+      api.sound(crashed ? "lose" : "win");
+      return;
+    }
+    if (crashed) {
+      juice.burst(rocketAt, {
+        count: 70,
+        speed: 1.4,
+        colors: ["#ff4d1f", "#ff8a3d", "#ffd166", "#fff"],
+      });
+      juice.burst(rocketAt, {
+        kind: "ember",
+        count: 40,
+        speed: 0.6,
+        colors: ["#ff8a3d", "#ff4d6d", "#7a2a1a"],
+      });
+      juice.burst(rocketAt, { kind: "ring", colors: ["#ff4d1f"], width: 8 });
+      juice.shake(0.8);
+      juice.flash("#ff3b1f", 0.4);
+      juice.loss(figureAt, playedStake);
+      juice.banner({
+        kicker: "INCIDENT · " + displayValue.toFixed(2) + "×",
+        title: "PROD DOWN",
+        tone: "red",
+        sound: "boom",
+        duration: 1200,
+      });
+      api.sound("error");
+    } else if (auto) {
+      juice.burst(rocketAt, {
+        kind: "star",
+        count: 40,
+        colors: ["#7df9ff", "#fff", "#ffe066"],
+      });
+      react("deploy", playedStake, paid, figureAt, "jackpot");
+    } else react("deploy", playedStake, paid, figureAt);
   }
 
   function syncFlight(cashingOut = false) {
@@ -543,6 +727,19 @@ export function initFloor(api) {
       settleFlight(Math.floor(raw * 100) / 100, false);
     } else if (gameId === "deploy" && flightStage) {
       const reading = Math.floor(raw * 100) / 100;
+      if (juice.enabled) {
+        // Escalate: glow, scale and a rising tick every quarter multiplier.
+        const k = Math.min(1, Math.log(raw) / Math.log(ceiling));
+        flightStage.stage.style.setProperty("--k", k.toFixed(3));
+        const step = Math.floor(raw * 4);
+        if (step > (flightStage.lastStep ?? 3)) {
+          flightStage.lastStep = step;
+          api.sound("tick", { pitch: 1 + k * 1.6 });
+          juice.shake(0.03 + k * 0.12);
+          juice.hype(0.6 + k);
+          if (step % 4 === 0) juice.pop(flightStage.figure, "fx-pop");
+        }
+      }
       flightStage.figure.textContent = reading.toFixed(2) + "×";
       flightStage.button.textContent =
         "Cash out " + money(creditedAt(flight.wager, reading)) + " T";
@@ -561,6 +758,16 @@ export function initFloor(api) {
     api.set("floor.flight", flight);
     api.sound("cast");
     paint();
+    if (juice.enabled && flightStage) {
+      api.sound("riser", { length: 0.9 });
+      juice.burst(flightStage.canvas, {
+        kind: "ember",
+        count: 20,
+        colors: ["#ffd166", "#ff8a3d", "#fff"],
+      });
+      juice.shake(0.2);
+      juice.hype(2);
+    }
     update();
     watchFlight();
   }
@@ -606,15 +813,17 @@ export function initFloor(api) {
     );
     shell.append(wagerBar(!!flight));
     const action = button(
-      "fl-action fl-primary",
+      "fl-action fl-primary g-btn big " + (flight ? "lime" : "volt"),
       flight
         ? "Cash out " + money(flight.wager) + " T"
-        : "Deploy for " + money(stake) + " T  ↗",
+        : "Deploy for " + money(stake) + " T ▶",
       () => (flight ? syncFlight(true) : startFlight()),
     );
     shell.append(action);
     if (!flight) shell.append(receipt("deploy"));
-    flightStage = { figure, canvas, clock, button: action };
+    flightStage = { figure, canvas, clock, button: action, stage };
+    if (flight) stage.classList.add("fl-live");
+    else if (result?.status === "crashed") stage.classList.add("fl-down");
     drawFlight(
       canvas,
       result?.elapsed || 0,
@@ -638,6 +847,7 @@ export function initFloor(api) {
 
   function clearView() {
     playSequence++;
+    globalThis.cancelAnimationFrame?.(wheelWatch);
     if (dismissTimer) clearTimeout(dismissTimer);
     dismissTimer = null;
     reveal = null;
@@ -695,7 +905,11 @@ export function initFloor(api) {
         node("strong", "", spec.title),
         node("span", "fl-genre", spec.genre),
       );
-      const arrow = node("span", "fl-arrow", "↗");
+      const arrow = node(
+        "kbd",
+        "fl-arrow",
+        { merge: "2", roulette: "3", deploy: "4" }[id] || "↗",
+      );
       arrow.setAttribute("aria-hidden", "true");
       foot.append(details, arrow);
       card.append(cover, foot);

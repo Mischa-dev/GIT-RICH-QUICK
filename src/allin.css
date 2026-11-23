@@ -1,0 +1,152 @@
+/* ALL IN — one wheel, one colour, your entire balance. */
+.allin-stage {
+  display: grid;
+  grid-template-columns: minmax(260px, 420px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+}
+.allin-wheel-wrap {
+  position: relative;
+  aspect-ratio: 1;
+  padding: 14px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent 66%, rgba(255, 204, 51, 0.25) 67%, transparent 70%),
+    conic-gradient(from 0deg, #3a2a08, #ffcc33, #6b4a0c, #ffe08a, #3a2a08);
+  box-shadow:
+    0 0 0 2px #000,
+    0 0 60px -6px rgba(255, 46, 85, 0.6),
+    0 30px 60px -20px #000;
+}
+.allin-wheel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px #000, inset 0 0 40px rgba(0, 0, 0, 0.6);
+  will-change: transform;
+}
+.allin-labels span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 22px;
+  margin-left: -11px;
+  text-align: center;
+  font: italic 900 14px/1 var(--display);
+  color: #fff;
+  transform: rotate(var(--a)) translateY(calc(-1 * min(17vw, 172px)));
+  transform-origin: 50% 0;
+}
+.allin-hub {
+  position: absolute;
+  inset: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff5c8, #ffcc33 30%, #8a5a00 75%);
+  box-shadow: 0 0 0 4px #000, 0 0 30px rgba(255, 204, 51, 0.6);
+}
+.allin-pointer {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  margin-left: -14px;
+  border: 14px solid transparent;
+  border-top: 28px solid #fff;
+  filter: drop-shadow(0 0 10px #fff) drop-shadow(0 3px 0 #000);
+}
+.allin-panel {
+  display: grid;
+  gap: 14px;
+}
+.allin-need {
+  font: 400 12px/1.4 var(--mono);
+  letter-spacing: 0.15em;
+  color: var(--red);
+  animation: blink 0.7s steps(1) infinite;
+}
+.allin-stake small {
+  display: block;
+  font: 400 11px/1 var(--mono);
+  letter-spacing: 0.25em;
+  color: var(--dim);
+}
+.allin-stake b {
+  font: italic 900 clamp(60px, 8vw, 120px) / 0.9 var(--display);
+  color: var(--gold);
+  text-shadow: 0 0 30px rgba(255, 204, 51, 0.55);
+  font-variant-numeric: tabular-nums;
+}
+.allin-result {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.allin-pick {
+  font: italic 900 30px/1 var(--display);
+  animation: blink 0.35s steps(1) infinite;
+}
+.allin-number {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  font: italic 900 42px/1 var(--display);
+  color: #fff;
+  box-shadow: 0 0 0 3px #fff, 0 0 30px currentColor;
+  animation: pop-in 0.45s cubic-bezier(0.2, 1.8, 0.4, 1);
+}
+.allin-number.allin-red {
+  background: #e0123c;
+  color: #fff;
+}
+.allin-number.allin-black {
+  background: #111018;
+}
+.allin-number.allin-green {
+  background: #12c46b;
+}
+@keyframes pop-in {
+  from {
+    transform: scale(3) rotate(-30deg);
+    opacity: 0;
+  }
+}
+.allin-verdict {
+  font: italic 900 clamp(32px, 4vw, 56px) / 0.95 var(--display);
+  text-transform: uppercase;
+}
+.allin-pick.allin-red,
+.allin-red + .allin-verdict {
+  color: #ff4d6d;
+}
+.allin-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.allin-actions .g-btn {
+  min-height: 72px;
+  font-size: 30px;
+  padding: 0 28px;
+}
+.allin-actions .allin-black {
+  --a: #2a2838;
+  --b: #050409;
+}
+.allin-actions .allin-keep {
+  min-height: 48px;
+  font-size: 18px;
+}
+@media (max-width: 760px) {
+  .allin-stage {
+    grid-template-columns: 1fr;
+  }
+  .allin-labels span {
+    transform: rotate(var(--a)) translateY(-38vw);
+  }
+}

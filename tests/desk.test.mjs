@@ -178,7 +178,7 @@ test("pause and reload preserve the paid checkpoint without rebilling a complete
   assert.equal(game.archive[0].hash, hash);
   game.action("next");
   assert.equal(
-    game.document.querySelectorAll("select option:not([disabled])").length,
+    game.document.querySelectorAll(".desk-quest:not([disabled])").length,
     3,
   );
 });
