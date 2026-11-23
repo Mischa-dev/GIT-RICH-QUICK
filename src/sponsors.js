@@ -1,3 +1,5 @@
+import { juiceOf } from "./juice.js";
+
 /* Commercials are written as three cuts so the punchline lands on the last card. */
 const SPOTS = [
   {
@@ -795,6 +797,7 @@ function mountStamp(node, name) {
 }
 
 export function initSponsors(api) {
+  const juice = juiceOf(api);
   let active = null;
   const fmt = (n) => api.format(n);
 
@@ -846,20 +849,44 @@ export function initSponsors(api) {
     const actions = document.createElement("div");
     actions.className = "sp-actions";
     actions.append(
-      button("Back to the floor", "sp-primary", () => api.closeModal()),
-      button("Watch another ad", "sp-plain", () => air(session)),
+      button("Back to the floor", "sp-primary g-btn big volt", () =>
+        api.closeModal(),
+      ),
+      button("Watch another ad ▶", "sp-plain g-btn big ice", () =>
+        air(session),
+      ),
     );
     host.append(ticket, actions);
     actions.firstElementChild.focus({ preventScroll: true });
+    juice.pop(ticket.querySelector(".sp-receipt-total"), "fx-pop");
   }
 
-  function pay(session, amount, source, isAd) {
+  // Funding is not a win, so it skips the hype bonus: just coins into the wallet.
+  function shower(from, amount, big) {
+    if (!juice.enabled || !from) return;
+    const r = from.getBoundingClientRect();
+    const at = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    juice.coinsTo(at, amount);
+    juice.float(at, "+" + fmt(amount), { size: big ? 44 : 34 });
+    juice.burst(at, {
+      count: big ? 46 : 26,
+      colors: ["#fff3b0", "#ffd166", "#ffb703", "#fff"],
+    });
+    juice.burst(at, { kind: "ring", colors: ["#ffe066"] });
+    if (big) {
+      juice.burst(at, { kind: "confetti", count: 60, speed: 1.1 });
+      juice.shake(0.35);
+    } else juice.shake(0.15);
+  }
+
+  function pay(session, amount, source, isAd, from) {
     if (active !== session || session.settled) return;
     session.settled = true;
     stopClock(session);
     api.earn(amount, source);
     if (isAd) api.stat("ads");
     api.sound("win");
+    shower(from, amount, amount >= 1000);
     if (session.callback) {
       const resume = session.callback;
       session.callback = null;
@@ -899,8 +926,10 @@ export function initSponsors(api) {
     host.querySelector(".sp-ticker").textContent = spot.ticker;
     mountStamp(host.querySelector(".sp-seal"), spot.stamp);
     const controls = host.querySelector(".sp-air-controls");
-    const claim = button("Sponsor break · 6s", "sp-primary sp-claim", () =>
-      pay(session, REWARD, spot.brand + " sponsor fee", true),
+    const claim = button(
+      "Sponsor break · 6s",
+      "sp-primary sp-claim g-btn big lime",
+      () => pay(session, REWARD, spot.brand + " sponsor fee", true, claim),
     );
     claim.disabled = true;
     controls.append(claim);
@@ -935,6 +964,15 @@ export function initSponsors(api) {
         host.querySelector(".sp-air-meter .sp-overline").textContent =
           "SPONSOR FEE RELEASED";
         controls.setAttribute("data-finished", "");
+        if (juice.enabled) {
+          juice.pop(claim, "fx-pop");
+          juice.burst(claim, {
+            kind: "star",
+            count: 16,
+            colors: ["#ffe066", "#fff"],
+          });
+          api.sound("step");
+        }
         const transcript = document.createElement("details");
         transcript.className = "sp-transcript";
         addLine(transcript, "summary", "", "Read the broadcast transcript");
@@ -984,11 +1022,12 @@ export function initSponsors(api) {
       const offer = document.createElement("button");
       offer.type = "button";
       offer.className = "sp-pack";
+      offer.dataset.rarity = String(REFILLS.indexOf(pack));
       offer.innerHTML = `<span class="sp-pack-id">CREDIT SLIP / ${pack.mark}</span><strong class="sp-pack-amount">+${fmt(pack.amount)}</strong><span class="sp-pack-name"></span><span class="sp-pack-desc"></span><span class="sp-pack-price">FAKE $${pack.fake}<b>↗</b></span>`;
       offer.querySelector(".sp-pack-name").textContent = pack.name;
       offer.querySelector(".sp-pack-desc").textContent = pack.desc;
       offer.addEventListener("click", () =>
-        pay(session, pack.amount, pack.name + " fake refill", false),
+        pay(session, pack.amount, pack.name + " fake refill", false, offer),
       );
       offers.append(offer);
     }

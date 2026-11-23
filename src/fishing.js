@@ -1,3 +1,5 @@
+import { juiceOf } from "./juice.js";
+
 const species = [
   {
     name: "Legacy Boot",
@@ -134,6 +136,7 @@ function sprite(id, hidden = false) {
 }
 
 export function initFishing(api) {
+  const juice = juiceOf(api);
   const host = document.querySelector("#fishing-card");
   const book = restoreBook(api.get(saveKey, null));
   const save = () => api.set(saveKey, book);
@@ -156,8 +159,10 @@ export function initFishing(api) {
   let returnFocus = null;
   const count = () => Object.keys(book.species).length;
   const active = () => ["wait", "bite", "reel"].includes(phase);
-  const action = (label) =>
-    '<button class="pond-action" type="button" data-pond="action">' +
+  const action = (label, tone = "lime") =>
+    '<button class="pond-action g-btn big ' +
+    tone +
+    '" type="button" data-pond="action">' +
     label +
     "</button>";
   const hint = (text) => '<span class="pond-hint">' + text + "</span>";
@@ -257,6 +262,8 @@ export function initFishing(api) {
           return (
             '<li class="' +
             (record ? "" : "pond-unseen") +
+            '" data-tier="' +
+            fish.tier +
             '">' +
             sprite(id, !record) +
             "<span><b>" +
@@ -290,7 +297,7 @@ export function initFishing(api) {
         '<div class="pond-state"><b>Fish on!</b>' +
         hint("Hook it before it spits the bait.") +
         "</div>" +
-        action("Hook now!")
+        action("Hook now!", "hot")
       );
     if (phase === "reel") {
       return (
@@ -299,7 +306,7 @@ export function initFishing(api) {
         "</b>" +
         hint(message || "Pull when the needle is inside the green zone.") +
         "</div>" +
-        action("Pull line")
+        action("Pull line", "ice")
       );
     }
     if (phase === "caught") {
@@ -359,7 +366,9 @@ export function initFishing(api) {
       let sceneExtra = "";
       if (phase === "caught")
         sceneExtra =
-          '<div class="pond-reveal"><div class="pond-reveal-sprite">' +
+          '<div class="pond-reveal" data-tier="' +
+          species[fishId].tier +
+          '"><div class="pond-reveal-sprite">' +
           sprite(fishId) +
           "</div><div><small>" +
           species[fishId].tier +
@@ -397,11 +406,28 @@ export function initFishing(api) {
         ?.focus({ preventScroll: true });
   }
 
+  // Screen point of something in the pond panel, for effects.
+  const spot = (selector) => panel?.querySelector(selector) || panel;
+
   function miss(explanation) {
     clearTimers();
+    const float = spot(".pond-float");
     phase = "miss";
     message = explanation;
     api.sound("lose");
+    if (juice.enabled) {
+      juice.float(
+        float,
+        /Early/.test(explanation)
+          ? "TOO EARLY"
+          : /Late/.test(explanation)
+            ? "TOO LATE"
+            : "SNAP!",
+        { tone: "loss", size: 26 },
+      );
+      juice.shake(0.2);
+      juice.flash("#ff4d6d", 0.12);
+    }
     paint();
   }
 
@@ -424,6 +450,21 @@ export function initFishing(api) {
         phase = "bite";
         api.sound("tick");
         paint();
+        if (juice.enabled) {
+          api.sound("heartbeat");
+          juice.burst(spot(".pond-float"), {
+            kind: "ring",
+            colors: ["#7df9ff"],
+          });
+          juice.burst(spot(".pond-float"), {
+            count: 14,
+            colors: ["#7df9ff", "#e8feff", "#fff"],
+            angle: -Math.PI / 2,
+            spread: 0.9,
+            speed: 0.6,
+          });
+          juice.shake(0.12);
+        }
         timer = setTimeout(
           () => miss("Late hook. Watch for the BITE signal."),
           3000,
@@ -487,10 +528,55 @@ export function initFishing(api) {
     save();
     api.earn(pay, "Landed a " + fish.name);
     api.stat("fish");
-    api.sound(fishId >= 8 ? "bigwin" : "win");
-    if (fishId >= 8) api.fx("win");
+    if (!juice.enabled) {
+      api.sound(fishId >= 8 ? "bigwin" : "win");
+      if (fishId >= 8) api.fx("win");
+    }
     update();
     paint();
+    if (juice.enabled) celebrateCatch(fish, pay);
+  }
+
+  function celebrateCatch(fish, pay) {
+    const from = spot(".pond-reveal-sprite");
+    const tierName =
+      fish.tier === "Legendary"
+        ? "mega"
+        : fish.tier === "Epic"
+          ? "big"
+          : undefined;
+    juice.payout({
+      from,
+      amount: pay,
+      bet: Math.ceil(pay / 2),
+      label: fish.tier + " catch",
+      big: tierName,
+    });
+    juice.burst(from, {
+      kind: "star",
+      count: tierName ? 30 : 14,
+      colors: ["#7df9ff", "#a6ff8f", "#fff"],
+    });
+    juice.pop(from, "fx-pop");
+    if (result.fresh)
+      juice.banner({
+        kicker:
+          fish.tier.toUpperCase() +
+          " · CATCH LOG " +
+          count() +
+          "/" +
+          species.length,
+        title: "NEW SPECIES",
+        sub: fish.name,
+        tone: "cyan",
+        sound: "levelup",
+        duration: 1700,
+      });
+    else if (result.pb)
+      juice.float(from, "NEW RECORD " + result.length + " CM", {
+        tone: "bonus",
+        dy: -50,
+      });
   }
 
   function advance() {
@@ -502,6 +588,18 @@ export function initFishing(api) {
       clearTimers();
       phase = "reel";
       api.sound("cast");
+      if (juice.enabled) {
+        juice.float(spot(".pond-float"), "HOOKED!", {
+          tone: "bonus",
+          size: 28,
+        });
+        juice.burst(spot(".pond-float"), {
+          count: 22,
+          colors: ["#ffe066", "#7df9ff", "#fff"],
+        });
+        juice.shake(0.22);
+        juice.hype(3);
+      }
       startRail();
       return;
     }
@@ -511,14 +609,38 @@ export function initFishing(api) {
     lastPull = now;
     const offset = Math.abs(position(now) - target);
     if (offset <= halfWidth) {
+      const needle = spot(".pond-needle");
+      const perfect = offset <= halfWidth * 0.35;
+      if (juice.enabled) {
+        juice.burst(needle, {
+          count: perfect ? 26 : 14,
+          colors: perfect
+            ? ["#ffe066", "#fff", "#a6ff8f"]
+            : ["#a6ff8f", "#fff"],
+          speed: 0.7,
+        });
+        juice.float(needle, perfect ? "PERFECT!" : "CLEAN!", {
+          tone: perfect ? "gain" : "bonus",
+          size: perfect ? 30 : 22,
+          dy: -24,
+        });
+        juice.shake(perfect ? 0.25 : 0.14);
+        juice.hype(perfect ? 4 : 2);
+        api.sound("step", { pitch: perfect ? 1.3 : 1 });
+      }
       if (++passCount === 2) return land();
       message = "Clean pull. Hit the green zone again.";
-      api.sound("tick");
+      if (!juice.enabled) api.sound("tick");
     } else {
       if (++missedPulls === 2)
         return miss("The line went slack. Pull inside the green zone.");
       message = "Slack line! One more miss and it swims.";
       api.sound("error");
+      if (juice.enabled) {
+        juice.float(spot(".pond-needle"), "SLACK!", { tone: "loss", size: 24 });
+        juice.shake(0.3);
+        juice.flash("#ff4d6d", 0.14);
+      }
     }
     startRail();
   }

@@ -1,6 +1,50 @@
+/* ==========================================================================
+   THE TOKEN POND — side quest. Game skin: framed lake screen, rarity colours,
+   chunky timing bar, collectible catch log.
+   ========================================================================== */
+#fishing-card,
+.pond-window {
+  --pi: var(--ink, #0a0612);
+  --ph: var(--hot, #ff3d9a);
+  --pc: var(--ice, #7df9ff);
+  --pv: var(--volt, #ffe066);
+  --pl: var(--lime, #a6ff8f);
+  --pr: var(--red, #ff4d6d);
+  --ppx: var(--pixel, var(--mono, monospace));
+  --pch: var(--chunky, var(--condensed, sans-serif));
+  --pbig: var(--condensed, Impact, sans-serif);
+}
+/* Pixelify Sans draws "fi"/"fl" as odd ligatures, and every font shorthand
+   resets the ligature setting, so it is pinned here. */
+#fishing-card,
+#fishing-card *,
+.pond-window,
+.pond-window * {
+  font-variant-ligatures: none !important;
+}
 #fishing-card {
   min-width: 0;
 }
+.pond-window [data-tier] {
+  --tier: #cfc8dc;
+}
+.pond-window [data-tier="Junk"] {
+  --tier: #8f8a99;
+}
+.pond-window [data-tier="Uncommon"] {
+  --tier: var(--pl, #a6ff8f);
+}
+.pond-window [data-tier="Rare"] {
+  --tier: var(--pc, #7df9ff);
+}
+.pond-window [data-tier="Epic"] {
+  --tier: #c38bff;
+}
+.pond-window [data-tier="Legendary"] {
+  --tier: var(--pv, #ffe066);
+}
+
+/* ---------- floor card ---------- */
 .pond-card {
   position: relative;
   isolation: isolate;
@@ -13,11 +57,28 @@
   padding: 13px 15px 14px;
   overflow: hidden;
   text-align: left;
-  color: #fff1db;
+  color: #fff;
   background: #29273e;
-  border: 1px solid #474252;
-  border-radius: 9px;
+  border: 3px solid var(--pi);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 2px #7df9ff66,
+    0 6px 0 var(--pi);
   cursor: pointer;
+  transition:
+    transform 0.18s cubic-bezier(0.3, 1.6, 0.5, 1),
+    box-shadow 0.18s;
+}
+.pond-card:hover {
+  transform: translateY(-5px);
+  box-shadow:
+    inset 0 0 0 2px var(--pc),
+    0 11px 0 var(--pi),
+    0 0 28px #7df9ff55;
+}
+.pond-card:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--pi);
 }
 .pond-card-art,
 .pond-card::after,
@@ -42,38 +103,40 @@
   z-index: -1;
   background: linear-gradient(
     180deg,
-    rgba(15, 16, 33, 0.19),
-    transparent 48%,
-    rgba(14, 17, 34, 0.55) 70%,
-    #151725 100%
+    #0f102130,
+    transparent 45%,
+    #0e1122a0 70%,
+    #120a20 100%
   );
 }
 .pond-card:hover .pond-card-art {
-  transform: scale(1.035);
+  transform: scale(1.06);
 }
 .pond-card:focus-visible,
 .pond-window button:focus-visible {
-  outline: 2px solid var(--gold, #ffd37b);
-  outline-offset: 2px;
+  outline: 3px solid var(--pv);
+  outline-offset: 3px;
 }
 .pond-card-tag {
   display: inline-flex;
-  gap: 5px;
+  gap: 6px;
   align-items: center;
   align-self: flex-start;
-  padding: 4px 6px;
-  background: #211e33db;
-  border: 1px solid #86829c80;
-  border-radius: 3px;
-  color: #f6e3d0;
-  font: 700 9px/1 var(--mono, monospace);
-  letter-spacing: 0.08em;
+  padding: 5px 8px;
+  background: var(--pc);
+  border: 2px solid var(--pi);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--pi);
+  color: var(--pi);
+  font: 700 10px/1 var(--ppx);
+  letter-spacing: 0.05em;
+  rotate: -3deg;
 }
 .pond-card-tag i {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   display: inline-block;
-  background: #ecc69e;
+  background: currentColor;
   clip-path: polygon(
     40% 0,
     61% 0,
@@ -88,6 +151,7 @@
     0 40%,
     34% 33%
   );
+  animation: pond-twinkle 1.2s linear infinite;
 }
 .pond-card-caption {
   display: flex;
@@ -101,88 +165,101 @@
   display: block;
 }
 .pond-card-caption strong {
-  font: 800 25px/0.98 var(--display, system-ui);
-  letter-spacing: -0.045em;
-  text-shadow: 0 1px 5px #232034;
+  font: 700 18px/1.05 var(--pch);
+  text-shadow:
+    2px 2px 0 var(--pi),
+    0 0 14px #7df9ff66;
 }
 .pond-card-caption small {
-  margin-top: 5px;
-  color: #e0d1da;
-  font: 11px/1.25 var(--mono, monospace);
+  margin-top: 6px;
+  color: var(--pc);
+  font: 400 10px/1.25 var(--ppx);
+  text-shadow: 1px 1px 0 var(--pi);
 }
 .pond-card-arrow {
   display: grid;
   place-content: center;
-  flex: 0 0 27px;
-  height: 27px;
-  margin-bottom: 1px;
-  color: #ffecd8;
-  border: 1px solid #aa9ca3;
-  border-radius: 5px;
-  background: #242438b8;
+  flex: 0 0 38px;
+  height: 38px;
+  color: var(--pi);
+  border: 3px solid var(--pi);
+  border-radius: 9px;
+  background: var(--pc);
+  box-shadow: 0 4px 0 var(--pi);
+}
+.pond-card:hover .pond-card-arrow {
+  animation: pond-arrow 0.5s ease-in-out infinite alternate;
 }
 .pond-card-arrow i {
   position: relative;
-  width: 11px;
-  height: 11px;
-  border-top: 1.5px solid currentColor;
-  border-right: 1.5px solid currentColor;
+  width: 12px;
+  height: 12px;
+  border-top: 3px solid currentColor;
+  border-right: 3px solid currentColor;
 }
 .pond-card-arrow i::after {
   content: "";
   position: absolute;
-  top: -1px;
+  top: -2px;
   right: 0;
-  width: 13px;
-  height: 1.5px;
+  width: 15px;
+  height: 3px;
   background: currentColor;
   transform: rotate(-45deg);
   transform-origin: right center;
 }
+
+/* ---------- scene ---------- */
 .pond-window {
-  --pond-ink: #171824;
-  --pond-light: #f5eadb;
-  --pond-sub: #c1bac6;
-  --pond-line: #43404d;
-  --pond-mint: #9cdbb6;
   width: 100%;
   min-width: 0;
-  color: var(--pond-light);
+  color: #fff;
+  font-family: var(--ppx);
 }
 .pond-window * {
   box-sizing: border-box;
 }
 .pond-tabs {
   display: flex;
-  align-items: center;
-  gap: 4px;
-  margin: 0 0 10px;
-  padding: 3px;
-  border: 1px solid var(--pond-line);
-  border-radius: 7px;
-  background: #1b1a23;
+  align-items: end;
+  gap: 6px;
+  margin: 0 0 -3px 14px;
+  position: relative;
+  z-index: 1;
   width: fit-content;
   max-width: 100%;
 }
 .pond-tabs button {
-  border: 0;
-  border-radius: 4px;
-  padding: 7px 10px;
+  border: 3px solid var(--pi);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  padding: 10px 16px 9px;
   cursor: pointer;
-  color: var(--pond-sub);
-  background: transparent;
-  font: 600 12px/1 var(--mono, monospace);
+  color: #b7aed0;
+  background: #1b1030;
+  font: 700 12px/1 var(--ppx);
+  text-transform: uppercase;
+  transition: transform 0.12s;
+}
+.pond-tabs button:hover:enabled {
+  transform: translateY(-2px);
+  color: #fff;
 }
 .pond-tabs button[aria-pressed="true"] {
-  background: #413b46;
-  color: #fff1db;
+  background: var(--pc);
+  color: var(--pi);
+  padding-top: 13px;
 }
 .pond-tabs button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: default;
 }
 .pond-tabs span {
-  color: #bdb5c7;
+  margin-left: 4px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--pi);
+  color: var(--pv);
   font-size: 0.85em;
 }
 .pond-scene {
@@ -190,10 +267,23 @@
   isolation: isolate;
   width: 100%;
   aspect-ratio: 320/120;
-  border: 1px solid #5e566c;
+  border: 3px solid var(--pi);
   overflow: hidden;
-  background: var(--pond-ink);
-  border-radius: 6px;
+  background: #171824;
+  border-radius: 16px;
+  box-shadow:
+    inset 0 0 0 2px #7df9ff88,
+    0 6px 0 var(--pi),
+    0 0 40px #7df9ff22;
+}
+.pond-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, #0000 0 3px, #0000002a 3px 4px),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, #0008);
 }
 .pond-lake {
   z-index: -1;
@@ -203,6 +293,14 @@
 .phase-bite,
 .phase-reel {
   cursor: pointer;
+}
+.phase-bite {
+  box-shadow:
+    inset 0 0 0 3px var(--ph),
+    inset 0 0 60px #ff3d9a55,
+    0 6px 0 var(--pi),
+    0 0 40px #ff3d9a77;
+  animation: pond-alarm 0.25s steps(2) infinite;
 }
 .pond-float {
   position: absolute;
@@ -238,94 +336,123 @@
 .pond-bite-badge {
   position: absolute;
   left: 64.4%;
-  bottom: 32%;
-  transform: translateX(-50%) rotate(-4deg);
-  border: 2px solid #33293b;
-  border-radius: 3px;
-  background: #ffda89;
-  color: #3d2932;
-  padding: 4px 7px 5px;
-  box-shadow: 2px 2px 0 #392c46;
-  font: 900 clamp(11px, 3vw, 19px) / 1 var(--display, system-ui);
+  bottom: 30%;
+  translate: -50% 0;
+  border: 4px solid var(--pi);
+  border-radius: 10px;
+  background: var(--ph);
+  color: #fff;
+  padding: 6px 14px 8px;
+  box-shadow:
+    0 5px 0 var(--pi),
+    0 0 30px var(--ph);
+  font: 900 clamp(20px, 4vw, 44px) / 1 var(--pbig);
+  -webkit-text-stroke: 2px var(--pi);
+  paint-order: stroke fill;
+  animation: pond-badge 0.3s ease-in-out infinite alternate;
 }
+
+/* controls */
 .pond-controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-top: 13px;
-  min-height: 46px;
+  gap: 16px;
+  margin-top: 18px;
+  min-height: 64px;
+  padding: 12px 12px 12px 18px;
+  background: #1b1030;
+  border: 3px solid var(--pi);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 2px #7a3cff55,
+    0 5px 0 var(--pi);
 }
 .pond-state {
   display: grid;
-  gap: 3px;
+  gap: 6px;
 }
 .pond-state b {
-  font: 750 17px/1.12 var(--display, system-ui);
+  font: 700 18px/1.1 var(--ppx);
+  text-shadow: 2px 2px 0 var(--pi);
+}
+.phase-bite ~ .pond-controls .pond-state b {
+  color: var(--ph);
 }
 .pond-hint,
 .pond-description {
   margin: 0;
-  font:
-    13px/1.45 system-ui,
-    sans-serif;
-  color: var(--pond-sub);
+  font: 400 11px/1.5 var(--ppx);
+  color: #c9bde6;
 }
 .pond-window .pond-action {
   flex-shrink: 0;
-  min-height: 39px;
-  padding: 9px 15px;
-  border: 1px solid #b0ebc5;
-  border-radius: 5px;
-  background: #a5dcba;
-  box-shadow: 0 2px 0 #537e67;
-  color: #1a2924;
+  min-width: 190px;
+  min-height: 60px;
   cursor: pointer;
-  font: 800 13px/1.15 var(--display, system-ui);
 }
-.pond-action:hover {
-  filter: brightness(1.09);
+.pond-window .pond-action:not(.g-btn) {
+  border: 3px solid var(--pi);
+  border-radius: 12px;
+  background: var(--pl);
+  box-shadow: 0 5px 0 var(--pi);
+  color: var(--pi);
+  font: 700 16px/1.15 var(--ppx);
 }
-.pond-action:active {
-  transform: translateY(1px);
+.pond-window .pond-action.hot {
+  animation: pond-badge 0.3s ease-in-out infinite alternate;
 }
+
+/* reel timing bar */
 .pond-reel-readout {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 12px;
-  color: var(--pond-sub);
-  font: 12px/1.3 var(--mono, monospace);
+  gap: 14px;
+  margin-top: 16px;
+  color: var(--pv);
+  font: 700 13px/1.3 var(--ppx);
+  text-shadow: 2px 2px 0 var(--pi);
 }
 .pond-rail {
   position: relative;
-  height: 17px;
+  height: 38px;
   flex: 1;
-  margin: 4px 0;
-  border: 1px solid #797082;
-  border-radius: 3px;
-  background: repeating-linear-gradient(
-    90deg,
-    #413b49 0 11px,
-    #504752 11px 12px
-  );
+  border: 3px solid var(--pi);
+  border-radius: 10px;
+  overflow: visible;
+  background:
+    repeating-linear-gradient(90deg, #ffffff10 0 2px, transparent 2px 20px),
+    linear-gradient(180deg, #3a1530, #1d0b1a);
+  box-shadow:
+    inset 0 0 0 2px #ff4d6d55,
+    0 4px 0 var(--pi);
 }
 .pond-safe {
   position: absolute;
   inset-block: 0;
-  border-inline: 2px solid #b9f7c8;
-  background: repeating-linear-gradient(125deg, #4d926f 0 4px, #629d7d 4px 7px);
+  border-inline: 3px solid #fff;
+  background: repeating-linear-gradient(
+    125deg,
+    #2fbf71 0 6px,
+    var(--pl) 6px 12px
+  );
+  box-shadow: 0 0 18px var(--pl);
+  animation: pond-safe 0.6s linear infinite;
+  background-size: 200% 100%;
 }
 .pond-needle {
   position: absolute;
-  top: -4px;
-  bottom: -4px;
-  width: 4px;
+  top: -10px;
+  bottom: -10px;
+  width: 10px;
   transform: translateX(-50%);
-  border-radius: 2px;
-  background: #ffe6ac;
-  box-shadow: 0 0 0 1px #4c3b41;
+  border: 3px solid var(--pi);
+  border-radius: 4px;
+  background: var(--pv);
+  box-shadow: 0 0 14px var(--pv);
 }
+
+/* catch reveal */
 .pond-reveal {
   position: absolute;
   inset: 0;
@@ -333,19 +460,31 @@
   align-items: center;
   justify-content: center;
   padding: 12px;
-  gap: clamp(10px, 3vw, 20px);
-  background: linear-gradient(115deg, #22203bd9, #24273ada 55%, #292641b3);
+  gap: clamp(14px, 4vw, 34px);
+  background:
+    repeating-conic-gradient(
+      from 0deg at 30% 50%,
+      color-mix(in srgb, var(--tier) 18%, transparent) 0 8deg,
+      transparent 8deg 20deg
+    ),
+    linear-gradient(115deg, #120a20e6, #1b1030d9);
 }
 .pond-reveal-sprite {
   display: grid;
   place-content: center;
-  width: clamp(75px, 25%, 135px);
-  aspect-ratio: 1.4;
+  width: clamp(90px, 28%, 170px);
+  aspect-ratio: 1.3;
+  border: 4px solid var(--pi);
+  border-radius: 16px;
   background: radial-gradient(
     ellipse closest-side,
-    rgba(240, 202, 150, 0.3),
-    transparent
+    color-mix(in srgb, var(--tier) 45%, transparent),
+    #1b1030
   );
+  box-shadow:
+    inset 0 0 0 3px var(--tier),
+    0 6px 0 var(--pi),
+    0 0 34px color-mix(in srgb, var(--tier) 60%, transparent);
   flex-shrink: 0;
 }
 .pond-sprite {
@@ -358,89 +497,133 @@
   flex: none;
 }
 .pond-reveal-sprite .pond-sprite {
-  width: clamp(80px, 19vw, 140px);
-  filter: drop-shadow(2px 3px 0 #201d35);
-  animation: pond-arrive 0.35s ease-out both;
+  width: clamp(80px, 19vw, 150px);
+  filter: drop-shadow(3px 4px 0 var(--pi));
+  animation:
+    pond-arrive 0.45s cubic-bezier(0.2, 1.8, 0.4, 1) both,
+    pond-float-fish 1.6s 0.45s ease-in-out infinite alternate;
 }
 .pond-reveal strong,
 .pond-reveal small {
   display: block;
 }
 .pond-reveal small {
-  margin-bottom: 5px;
-  font: 700 10px/1.4 var(--mono, monospace);
-  letter-spacing: 0.09em;
+  width: fit-content;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border: 2px solid var(--pi);
+  border-radius: 6px;
+  background: var(--tier);
+  color: var(--pi);
+  font: 700 11px/1.4 var(--ppx);
   text-transform: uppercase;
-  color: #ffd8a4;
 }
 .pond-reveal strong {
-  font: 800 clamp(17px, 3.2vw, 29px) / 1.04 var(--display, system-ui);
-  letter-spacing: -0.03em;
-  color: #fff1da;
+  font: 900 clamp(26px, 4.6vw, 54px) / 0.95 var(--pbig);
+  color: #fff;
+  -webkit-text-stroke: 2px var(--pi);
+  paint-order: stroke fill;
+  text-shadow:
+    0 4px 0 var(--pi),
+    0 0 20px color-mix(in srgb, var(--tier) 70%, transparent);
   text-wrap: balance;
 }
 .pond-description {
-  padding: 9px 11px;
-  margin-top: 8px;
-  border-left: 2px solid #86738e;
-  color: #ddd2dd;
-  background: #332e38;
+  padding: 10px 14px;
+  margin-top: 14px;
+  border: 3px dashed #ffffff22;
+  border-radius: 10px;
+  color: #ddd2ff;
+  background: #ffffff06;
 }
+
+/* catch log */
 .pond-book-head {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 7px;
-  padding: 5px 0 10px;
-  font: 11px/1.2 var(--mono, monospace);
-  color: var(--pond-sub);
+  gap: 8px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  font: 700 12px/1.2 var(--ppx);
+  color: #c9bde6;
+  background: #1b1030;
+  border: 3px solid var(--pi);
+  border-radius: 14px;
+  box-shadow:
+    inset 0 0 0 2px #7df9ff55,
+    0 5px 0 var(--pi);
 }
 .pond-book-head b {
-  color: var(--pond-mint);
+  color: var(--pc);
+  font: 900 28px/1 var(--pbig);
 }
 .pond-species {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
   list-style: none;
-  padding: 0;
+  padding: 4px 4px 10px;
   margin: 0;
-  max-height: min(425px, 54vh);
+  max-height: min(480px, 58vh);
   overflow-y: auto;
-  border-block: 1px solid var(--pond-line);
 }
 .pond-species li {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 7px 6px;
-  border-bottom: 1px solid #393541;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 3px solid var(--pi);
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--tier) 18%, #1b1030),
+    #1b1030
+  );
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--tier) 50%, transparent),
+    0 4px 0 var(--pi);
 }
-.pond-species li:last-child {
-  border: 0;
+.pond-species li .pond-sprite {
+  width: 56px;
+  filter: drop-shadow(2px 2px 0 var(--pi));
 }
 .pond-species b,
 .pond-species small {
   display: block;
 }
 .pond-species b {
-  font: 700 14px/1.2 var(--display, system-ui);
+  font: 700 15px/1.15 var(--pch);
 }
 .pond-species small,
 .pond-rarity {
-  margin-top: 2px;
-  color: var(--pond-sub);
-  font: 10px/1.3 var(--mono, monospace);
+  margin-top: 3px;
+  color: #b7aed0;
+  font: 400 9px/1.3 var(--ppx);
 }
 .pond-silhouette {
-  filter: brightness(0) invert(0.48) sepia(0.08) hue-rotate(232deg);
-  opacity: 0.8;
+  filter: brightness(0) invert(0.3) !important;
+  opacity: 0.7;
+}
+.pond-unseen {
+  background: #120a20 !important;
+  box-shadow:
+    inset 0 0 0 2px #ffffff12,
+    0 4px 0 var(--pi) !important;
 }
 .pond-unseen b {
-  color: #a69da8;
+  color: #6f6787;
 }
 .pond-rarity {
   margin-left: auto;
-  color: #d8bd9c;
+  padding: 3px 6px;
+  border: 2px solid var(--pi);
+  border-radius: 5px;
+  background: var(--tier);
+  color: var(--pi);
+  font-weight: 700;
 }
+
 @keyframes pond-ripple {
   from {
     transform: scale(0.35);
@@ -469,36 +652,78 @@
 }
 @keyframes pond-arrive {
   from {
-    transform: translateY(10px) rotate(-6deg);
-    opacity: 0.3;
+    transform: translateY(30px) scale(0.4) rotate(-20deg);
+    opacity: 0;
   }
   to {
     transform: none;
     opacity: 1;
   }
 }
-@media (max-width: 440px) {
+@keyframes pond-float-fish {
+  to {
+    translate: 0 -6px;
+    rotate: 3deg;
+  }
+}
+@keyframes pond-badge {
+  to {
+    scale: 1.08;
+    rotate: -3deg;
+  }
+}
+@keyframes pond-alarm {
+  50% {
+    box-shadow:
+      inset 0 0 0 3px var(--pv),
+      inset 0 0 60px #ffe06644,
+      0 6px 0 var(--pi),
+      0 0 40px #ffe06666;
+  }
+}
+@keyframes pond-safe {
+  to {
+    background-position: 24px 0;
+  }
+}
+@keyframes pond-twinkle {
+  50% {
+    transform: scale(0.6) rotate(45deg);
+  }
+}
+@keyframes pond-arrow {
+  to {
+    transform: translate(2px, -3px);
+  }
+}
+@media (max-width: 540px) {
   .pond-controls {
-    align-items: start;
-    gap: 8px;
+    flex-wrap: wrap;
   }
   .pond-window .pond-action {
-    padding-inline: 11px;
+    width: 100%;
   }
   .pond-state b {
-    font-size: 15px;
+    font-size: 19px;
   }
-  .pond-hint {
-    font-size: 12px;
+  .pond-species {
+    grid-template-columns: 1fr;
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .pond-card,
   .pond-card-art {
     transition: none;
   }
   .pond-window .pond-float,
   .pond-window .pond-float:after,
-  .pond-reveal-sprite .pond-sprite {
+  .pond-reveal-sprite .pond-sprite,
+  .pond-card-tag i,
+  .pond-bite-badge,
+  .phase-bite,
+  .pond-safe,
+  .pond-window .pond-action.hot,
+  .pond-card:hover .pond-card-arrow {
     animation: none;
   }
 }

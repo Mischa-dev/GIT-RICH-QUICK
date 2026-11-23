@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-booting>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#101016" />
+    <meta name="theme-color" content="#0a0612" />
     <meta
       name="description"
       content="A coding agent, one fake wallet, and a casino open until the build passes."
@@ -28,9 +28,16 @@
     <link rel="icon" href="./assets/favicon.png" />
     <link
       rel="preload"
-      href="./assets/fonts/BarlowCondensed-Black.ttf"
+      href="./assets/fonts/Silkscreen-Bold.woff2"
       as="font"
-      type="font/ttf"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="./assets/fonts/PixelifySans-Bold.woff2"
+      as="font"
+      type="font/woff2"
       crossorigin
     />
     <link rel="stylesheet" href="./src/base.css" />
@@ -40,121 +47,167 @@
     <link rel="stylesheet" href="./src/floor.css" />
     <link rel="stylesheet" href="./src/sponsors.css" />
     <link rel="stylesheet" href="./src/t3.css" />
+    <link rel="stylesheet" href="./src/juice.css" />
   </head>
   <body>
-    <header class="topbar">
-      <div class="bar-inner">
-        <a class="brand" href="#arcade" aria-label="Git Rich Quick home"
-          ><img src="./assets/token.png" width="38" height="38" alt="" /><span
-            >GIT RICH <b>QUICK</b></span
-          ></a
+    <div class="title-screen" id="title-screen" aria-hidden="true">
+      <div class="title-logo">
+        <img class="title-coin" src="./assets/token.png" alt="" width="112" height="112" />
+        <h1 class="logo-big">
+          <span class="logo-line one">GIT RICH</span
+          ><span class="logo-line two">QUICK</span>
+        </h1>
+        <p class="title-tag">THE DEV CASINO · FAKE TOKENS · REAL DOPAMINE</p>
+      </div>
+      <button class="press-start" type="button">PRESS START</button>
+      <p class="title-legal">
+        ©2026 VIBE-1 ENTERTAINMENT · ALL TOKENS ARE FICTIONAL · THE GIT BLAME IS PERSONAL
+      </p>
+    </div>
+
+    <div class="game" id="arcade">
+      <header class="hud-top">
+        <a class="logo-badge" href="#arcade" data-act="arcade" aria-label="Git Rich Quick home">
+          <img src="./assets/token.png" width="46" height="46" alt="" />
+          <span class="logo-small"><b>GIT RICH</b><i>QUICK</i></span>
+        </a>
+
+        <div class="hud-player">
+          <div class="hud-level" title="Level 1"><b>1</b><span>LVL</span></div>
+          <div class="hud-xp">
+            <span class="hud-rank" id="hud-rank">ROOKIE</span>
+            <div class="hud-xp-bar"><i class="hud-xp-fill"></i></div>
+          </div>
+        </div>
+
+        <div class="hud-hype" title="Hype multiplies every win">
+          <div class="hud-hype-top">
+            <span class="hud-hype-label">HYPE</span>
+            <span class="hud-hype-name">COLD</span>
+            <span class="hud-hype-mult">×1</span>
+          </div>
+          <div class="hud-hype-bar"><i class="hud-hype-fill"></i></div>
+        </div>
+
+        <button
+          class="jackpot-board"
+          data-act="slots"
+          title="Hit 777 on Commit Slots to win the pool"
         >
-        <nav class="nav" aria-label="Main">
-          <button class="nav-item selected" data-act="arcade">
-            <i data-icon="pad"></i> Arcade Floor</button
-          ><button class="nav-item" data-act="desk">
-            <i data-icon="terminal"></i> Agent Desk</button
-          ><button class="nav-item" data-act="ledger">
-            <i data-icon="ledger"></i> Ledger
-          </button>
-        </nav>
-        <div class="bar-tools">
+          <span class="jackpot-label"
+            ><i class="jackpot-dot" aria-hidden="true"></i> JACKPOT</span
+          >
+          <strong class="jackpot-value" id="jackpot-value">5,000</strong>
+        </button>
+
+        <button
+          class="wallet-chip"
+          data-act="fund"
+          data-wallet-target
+          title="Token balance. Click for more."
+        >
+          <img src="./assets/token.png" width="34" height="34" alt="" /><b
+            data-wallet
+            id="wallet-total"
+            >1,200</b
+          ><span class="wallet-plus" aria-hidden="true">+</span>
+        </button>
+
+        <div class="hud-sys">
           <button
-            class="sound-button"
+            class="sys-btn sound-button"
             data-act="audio"
-            aria-label="Sound settings"
-            title="Sound settings"
+            aria-label="Sound and FX settings"
+            title="Sound and FX"
           >
             <i data-icon="volume"></i></button
-          ><button class="link-t3" data-act="t3">
-            <i data-icon="plug"></i><span>Connect T3</span>
-          </button>
-        </div>
-      </div>
-    </header>
-    <main class="shell" id="arcade">
-      <section class="floor-heading">
-        <div>
-          <div class="overline">
-            <span class="pixel-star" aria-hidden="true">✦</span> THE DEV CASINO
-          </div>
-          <h1>Arcade Floor<span class="heading-stop">.</span></h1>
-          <p>Ship code. Burn tokens. Win them back.</p>
-        </div>
-        <div class="wallet">
-          <img src="./assets/token.png" alt="" width="44" height="44" />
-          <div>
-            <span class="wallet-label">TOKEN BALANCE</span
-            ><strong id="wallet-total">1,200</strong>
-          </div>
-          <button
-            data-act="fund"
-            aria-label="Add fake tokens"
-            title="Get tokens"
+          ><button
+            class="sys-btn link-t3"
+            data-act="t3"
+            title="Connect T3 Code"
+            aria-label="Connect T3 Code"
           >
-            +
+            <i data-icon="plug"></i>
           </button>
         </div>
-      </section>
-      <div class="feature-grid">
-        <section id="slot-machine" aria-label="Commit Slots"></section>
-        <aside class="side-stack">
+      </header>
+
+      <main class="stage">
+        <aside class="stage-left">
           <section id="agent-card" aria-label="Agent desk"></section>
-          <section id="sponsor-card" aria-label="Sponsor TV"></section>
           <section id="fishing-card" aria-label="Token Pond"></section>
         </aside>
-      </div>
-      <section class="games-block" id="cabinets">
-        <div class="section-bar">
-          <div class="section-name">
-            <span class="four-pixels" aria-hidden="true"></span>
-            <h2>More machines</h2>
-          </div>
-          <span class="section-meta">3 CABINETS</span>
+        <section class="stage-center">
+          <div id="slot-machine" aria-label="Commit Slots"></div>
+          <ol class="win-feed" id="win-feed" aria-label="Recent wins"></ol>
+        </section>
+        <aside class="stage-right" id="cabinets">
+          <h2 class="select-title"><span>SELECT</span> GAME</h2>
+          <div id="floor-cards"></div>
+          <section id="sponsor-card" aria-label="Sponsor TV"></section>
+        </aside>
+      </main>
+
+      <footer class="hotbar">
+        <nav class="hotkeys" aria-label="Games">
+          <button class="hotkey" data-act="slots" data-key=" ">
+            <kbd>SPACE</kbd><span>SPIN</span></button
+          ><button class="hotkey nav-item" data-act="desk" data-key="1">
+            <kbd>1</kbd><span>AGENT</span></button
+          ><button class="hotkey" data-act="merge" data-key="2">
+            <kbd>2</kbd><span>MERGE</span></button
+          ><button class="hotkey" data-act="roulette" data-key="3">
+            <kbd>3</kbd><span>BLAME</span></button
+          ><button class="hotkey" data-act="deploy" data-key="4">
+            <kbd>4</kbd><span>DEPLOY</span></button
+          ><button class="hotkey" data-act="pond" data-key="5">
+            <kbd>5</kbd><span>POND</span></button
+          ><button class="hotkey" data-act="ads" data-key="6">
+            <kbd>6</kbd><span>TV</span></button
+          ><button class="hotkey nav-item" data-act="ledger" data-key="l">
+            <kbd>L</kbd><span>LEDGER</span>
+          </button>
+        </nav>
+        <div class="ticker">
+          <button data-act="ledger" class="ticker-tag">
+            <i data-icon="pulse"></i> LIVE
+          </button>
+          <span class="ticker-track"
+            ><span id="ticker-line"
+              >Welcome bonus credited. Finance would like to see your
+              receipts.</span
+            ></span
+          >
         </div>
-        <div id="floor-cards"></div>
-      </section>
-      <div class="ticker">
-        <button data-act="ledger" class="ticker-tag">
-          <i data-icon="pulse"></i> FLOOR WIRE</button
-        ><span id="ticker-line"
-          >Welcome bonus credited. Finance would like to see your
-          receipts.</span
-        ><button
-          data-act="ledger"
-          class="ticker-more"
-          aria-label="Open activity ledger"
-        >
-          <i data-icon="chevron"></i>
-        </button>
-      </div>
-      <footer>
-        <span class="footer-brand">GIT RICH QUICK</span
-        ><span>All tokens are fictional. The git blame is personal.</span
-        ><button data-act="receipt">
-          <i data-icon="receipt"></i> Print run receipt</button
-        ><a
-          href="https://github.com/Mischa-dev/GIT-RICH-QUICK"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Source <span aria-hidden="true">↗</span></a
-        >
+        <div class="hotbar-end">
+          <button data-act="receipt" class="mini-link">
+            <i data-icon="receipt"></i> RECEIPT</button
+          ><a
+            class="mini-link"
+            href="https://github.com/Mischa-dev/GIT-RICH-QUICK"
+            target="_blank"
+            rel="noopener noreferrer"
+            >SOURCE ↗</a
+          >
+        </div>
       </footer>
-    </main>
+    </div>
+
     <dialog id="game-dialog" aria-labelledby="dialog-title">
       <div class="dialog-inner">
         <header class="dialog-head">
-          <div>
+          <div class="dialog-plate">
             <small id="dialog-kicker"></small>
             <h2 id="dialog-title"></h2>
           </div>
-          <button id="dialog-close" aria-label="Close dialog">×</button>
+          <button id="dialog-close" aria-label="Close dialog">
+            <span aria-hidden="true">✕</span><kbd>ESC</kbd>
+          </button>
         </header>
         <div id="dialog-body"></div>
       </div>
     </dialog>
     <div id="toasts" aria-live="polite"></div>
-    <div id="confetti" aria-hidden="true"></div>
     <noscript>This arcade uses JavaScript to run its machines.</noscript>
     <script type="module" src="./src/app.js"></script>
   </body>

@@ -8,6 +8,8 @@ import { initFishing } from "./fishing.js";
 import { initSponsors } from "./sponsors.js";
 import { initFloor } from "./floor.js";
 import { initT3 } from "./t3.js";
+import { createJuice } from "./juice.js";
+import { startBackdrop } from "./backdrop.js";
 
 const $ = (s) => document.querySelector(s);
 const icons = {
@@ -50,11 +52,14 @@ const wallet = createEconomy(storage, () => {
   });
 });
 const audio = soundSystem(wallet);
+const juice = createJuice({ wallet, audio });
+startBackdrop(() => juice.heat / 100);
 document.addEventListener("pointerdown", () => audio.init(), { once: true });
 document.addEventListener("keydown", () => audio.init(), { once: true });
+let lastAct = null;
 function markTab(type) {
-  document.querySelectorAll(".nav-item").forEach((el) => {
-    const active = el.dataset.act === (type || "arcade");
+  document.querySelectorAll(".hotkey").forEach((el) => {
+    const active = !!type && el.dataset.act === type;
     el.classList.toggle("selected", active);
     if (active) el.setAttribute("aria-current", "page");
     else el.removeAttribute("aria-current");
@@ -87,9 +92,12 @@ function modal(title, content, opts = {}) {
       : title === "House ledger"
         ? "ledger"
         : null;
-  markTab(panelType);
-  if (!dialog.open) dialog.showModal();
-  else $("#dialog-close").focus({ preventScroll: true });
+  markTab(panelType || lastAct);
+  if (!dialog.open) {
+    dialog.showModal();
+    audio.sound("whoosh");
+  } else $("#dialog-close").focus({ preventScroll: true });
+  juice.raise();
 }
 $("#dialog-close").onclick = closeModal;
 dialog.addEventListener("cancel", (e) => {
@@ -117,22 +125,50 @@ function toast(message) {
   holder.append(n);
   setTimeout(() => n.remove(), 3500);
 }
-function fx(kind) {
-  const root = $("#confetti");
-  if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
-  const colors = ["#ffe8a1", "#ff806b", "#a9e5c8", "#c099ef"];
-  for (let i = 0; i < (kind === "jackpot" ? 90 : 27); i++) {
-    const n = document.createElement("i");
-    n.style.left = Math.random() * 100 + "%";
-    n.style.background = colors[i % 4];
-    n.style.setProperty("--drift", (Math.random() - 0.5) * 240 + "px");
-    n.style.animationDelay = Math.random() * 0.35 + "s";
-    root.append(n);
-    setTimeout(() => n.remove(), 2100);
-  }
+function fx(kind, from) {
+  const big = kind === "jackpot";
+  const at =
+    from || (dialog.open ? dialog.querySelector(".dialog-inner") : null);
+  juice.burst(at, { kind: "confetti", count: big ? 140 : 50, speed: 1.2 });
+  juice.burst(at, { count: big ? 40 : 20, colors: ["#fff3b0", "#ffd166", "#fff"] });
+  juice.shake(big ? 0.6 : 0.25);
+  if (big) juice.flash("#fff3b0", 0.3);
 }
+// The progressive pool grows with every slot wager and drifts upward on its own.
+const jackpot = {
+  get value() {
+    return Math.floor(wallet.get("jackpot.pool", 5000));
+  },
+  feed(n) {
+    wallet.set("jackpot.pool", Math.min(5e7, this.value + n));
+    paintJackpot(true);
+  },
+  claim() {
+    const won = this.value;
+    wallet.set("jackpot.pool", 5000);
+    paintJackpot(true);
+    return won;
+  },
+};
+function paintJackpot(bump) {
+  const node = $("#jackpot-value");
+  if (!node) return;
+  node.textContent = format(jackpot.value);
+  if (bump) juice.pop(node, "fx-pop");
+}
+setInterval(() => {
+  if (document.hidden) return;
+  jackpot.feed(1 + Math.floor(Math.random() * 6));
+}, 1400);
 const api = {
   ...wallet,
+  spend(n, label) {
+    const ok = wallet.spend(n, label);
+    if (ok) juice.spend(n);
+    return ok;
+  },
+  juice,
+  jackpot,
   modal,
   closeModal,
   toast,
@@ -269,7 +305,34 @@ function showAudio() {
     row.append(copy, b);
     section.append(row);
   }
-  modal("Sound booth", section, { eyebrow: "FLOOR AUDIO" });
+  const fxRow = el("div", undefined, "audio-row"),
+    fxCopy = el("div"),
+    fxButtons = el("div", undefined, "intensity-picker");
+  fxCopy.append(
+    el("b", "Visual intensity"),
+    el(
+      "p",
+      juice.reduced
+        ? "Your system asks for reduced motion, so the floor stays still."
+        : "How hard the floor hits back. Feral is the intended experience.",
+    ),
+  );
+  ["Chill", "Hyped", "Feral"].forEach((name, i) => {
+    const b = el("button", name, "hud-btn");
+    b.setAttribute("aria-pressed", String(juice.intensity === i));
+    b.onclick = () => {
+      juice.setIntensity(i);
+      fxButtons
+        .querySelectorAll("button")
+        .forEach((x, j) => x.setAttribute("aria-pressed", String(j === i)));
+      juice.burst(b, { count: [8, 24, 60][i] });
+      juice.shake([0, 0.3, 0.7][i]);
+    };
+    fxButtons.append(b);
+  });
+  fxRow.append(fxCopy, fxButtons);
+  section.append(fxRow);
+  modal("Sound booth", section, { eyebrow: "FLOOR AUDIO / FX" });
 }
 function soundIcon() {
   const icon = $(".sound-button i");
@@ -298,20 +361,38 @@ function ticker() {
     $("#ticker-line").textContent = headlines[tape++ % headlines.length];
   }, 14000);
 }
+let feedSignature = "";
+function paintFeed() {
+  const wins = wallet.state.events.filter((e) => e.amount > 0).slice(0, 6);
+  const sig = wins.map((e) => e.time + ":" + e.amount).join();
+  if (sig === feedSignature) return;
+  const fresh = feedSignature !== "";
+  feedSignature = sig;
+  const list = $("#win-feed");
+  if (!list) return;
+  list.replaceChildren(
+    ...wins.map((e, i) => {
+      const li = el("li", undefined, i === 0 && fresh ? "fresh" : "");
+      li.append(
+        el("b", "+" + format(e.amount)),
+        el("span", e.text.replace(/\.$/, "")),
+      );
+      return li;
+    }),
+  );
+}
 function update() {
+  paintFeed();
   for (const mod of modules) mod.update?.();
   if (panelType === "ledger") paintLedger();
   // Post the settled balance when the last reel lands, so the ticker cannot spoil it.
   if (!slots.rolling) {
-    $("#wallet-total").textContent = format(wallet.state.tokens);
+    juice.walletTo(wallet.state.tokens);
     ticker();
   }
 }
 const actions = {
-  arcade: () => {
-    closeModal();
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  },
+  arcade: () => closeModal(),
   desk: () => desk.open(),
   ledger,
   receipt: () => openReceipt(api),
@@ -330,8 +411,35 @@ document.addEventListener("click", (e) => {
   if (Object.hasOwn(actions, action)) {
     e.preventDefault();
     audio.sound("click");
+    lastAct = action;
     actions[action]();
   }
+});
+// Number-row hotkeys open machines, like a skill bar.
+document.addEventListener("keydown", (e) => {
+  if (
+    e.defaultPrevented ||
+    e.repeat ||
+    e.altKey ||
+    e.metaKey ||
+    e.ctrlKey ||
+    document.documentElement.hasAttribute("data-booting") ||
+    e.target.closest("input,textarea,select,[contenteditable]")
+  )
+    return;
+  const key = e.key.toLowerCase();
+  const slot = [...document.querySelectorAll(".hotkey")].find(
+    (b) => b.dataset.key === key && key !== " ",
+  );
+  if (!slot) return;
+  // Inside the agent desk, letters are for mashing; only digits switch machines.
+  if (dialog.open && !/^[1-6]$/.test(key)) return;
+  e.preventDefault();
+  slot.classList.add("pressed");
+  setTimeout(() => slot.classList.remove("pressed"), 120);
+  audio.sound("click");
+  lastAct = slot.dataset.act;
+  actions[slot.dataset.act]();
 });
 document.addEventListener("keydown", (e) => {
   if (
@@ -351,9 +459,50 @@ document.addEventListener("keydown", (e) => {
 });
 function route() {
   const hash = location.hash.slice(1).toLowerCase();
-  if (hash && Object.hasOwn(actions, hash)) actions[hash]();
+  if (hash && Object.hasOwn(actions, hash)) {
+    lastAct = hash;
+    actions[hash]();
+  }
 }
+// Title screen. A deep link skips straight to the floor.
+const titleScreen = $("#title-screen");
+function boot(instant) {
+  const html = document.documentElement;
+  if (!html.hasAttribute("data-booting")) return;
+  if (!instant) audio.init();
+  if (instant || juice.reduced) {
+    html.removeAttribute("data-booting");
+    return;
+  }
+  audio.sound("boom");
+  audio.sound("levelup");
+  juice.flash("#fff", 0.7);
+  titleScreen.classList.add("leaving");
+  setTimeout(() => {
+    html.removeAttribute("data-booting");
+    const game = $(".game");
+    game.classList.add("boot");
+    setTimeout(() => game.classList.remove("boot"), 1200);
+    juice.burst(null, { kind: "confetti", count: 120, speed: 1.3 });
+    juice.burst(null, { kind: "coin", count: 30, speed: 1.2 });
+    juice.shake(0.5);
+  }, 420);
+}
+if (location.hash.length > 1) boot(true);
+titleScreen.addEventListener("click", () => boot());
+document.addEventListener(
+  "keydown",
+  (e) => {
+    if (document.documentElement.hasAttribute("data-booting")) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      boot();
+    }
+  },
+  { capture: true },
+);
 window.addEventListener("hashchange", route);
 soundIcon();
+paintJackpot();
 update();
 route();

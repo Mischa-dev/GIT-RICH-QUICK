@@ -1,3 +1,6 @@
+import { juiceOf } from "./juice.js";
+import { robotMarkup } from "./sprites.js";
+
 // Contracts produce real, downloadable patches for the fictional companies on the floor.
 const contracts = [
   {
@@ -199,6 +202,24 @@ const contracts = [
   },
 ];
 
+// Extra lines the hacker pane pours out between the real patch lines.
+const filler = [
+  "const vibes = await casino.borrow(context);",
+  "if (!tests.green) tests.paint(\"green\");",
+  "export const confidence = Infinity;",
+  "// TODO: understand this later",
+  "for (const token of wallet) burn(token);",
+  "return ship(it).then(celebrate);",
+  "await agent.think({ hard: true, budget: \"yes\" });",
+  "const hotfix = hotfix ?? hotfix;",
+  "if (prod.isOnFire()) prod.addMoreFire = false;",
+  "let jackpot = 777; // do not refactor",
+  "assert(works, \"on my machine\");",
+  "git.push({ force: \"with feeling\" });",
+  "const reviewers = []; // fast-track",
+  "while (!merged) { vibe(); }",
+  "import { luck } from \"@floor/rng\";",
+];
 const phases = [
   "Checkout",
   "Inspect",
@@ -282,8 +303,18 @@ const statusLabel = (status) =>
     blocked: "No fuel",
     shipped: "Shipped",
   })[status] || "Ready";
+const skins = {
+  primary: "g-btn lime big",
+  secondary: "g-btn ghost",
+  mash: "g-btn hot big",
+  link: "",
+};
 const makeButton = (action, label, kind = "secondary", extra = "") =>
-  `<button type="button" class="desk-btn desk-${kind}" data-desk-action="${action}" ${extra}>${label}</button>`;
+  `<button type="button" class="desk-btn desk-${kind} ${skins[kind] ?? ""}" data-desk-action="${action}" ${extra}>${label}</button>`;
+const moodFor = (status) =>
+  ({ running: "working", blocked: "broke", shipped: "shipped" })[status] ||
+  "idle";
+const stars = (n) => "★".repeat(n) + "☆".repeat(4 - n);
 function makeLog(c, run) {
   const entries = Array.from({ length: run.phase }, (_, i) => ({
     label: phases[i],
@@ -305,6 +336,7 @@ function makeLog(c, run) {
 }
 
 export function initDesk(api) {
+  const juice = juiceOf(api);
   const card = document.querySelector("#agent-card");
   const restored = api.get(storeKey, {}) || {};
   const savedRun = restored.run;
@@ -341,6 +373,11 @@ export function initDesk(api) {
   let timer = 0;
   let sidebarSignature = "";
   let expanding = false;
+  let phaseDue = 0;
+  let typedPhase = -1;
+  let hack = { hash: null, text: "", pos: 0 };
+  let hackTimer = 0;
+  let keyHandler = null;
   const save = () => api.set(storeKey, game);
   if (validRun && savedRun.status === "running") save();
   const live = () => game.run && game.run.status !== "shipped";
@@ -375,15 +412,17 @@ export function initDesk(api) {
               ? "spawning worker…"
               : phases[run.phase - 1].toLowerCase() + " complete"
       : "worker online. awaiting deploy.";
-    card.innerHTML = `<div class="desk-panel">
-      <div class="desk-card-head"><h2>${terminalIcon} Agent terminal</h2><span class="desk-status desk-status-${state}">${pulse}${statusLabel(state)}</span></div>
+    card.innerHTML = `<div class="desk-panel g-panel desk-mood-${moodFor(state)}">
+      <div class="desk-card-head">
+        ${robotMarkup(moodFor(state), "desk-portrait")}
+        <div class="desk-card-id"><span class="g-chip">AGENT</span><h2>VIBE-1</h2><span class="desk-status desk-status-${state}">${pulse}${statusLabel(state)}</span></div>
+      </div>
       <div class="desk-mini-term" aria-label="Current agent output">
-        <div><span class="desk-shell">vibe@floor</span><span class="desk-dim">:~$</span> ${run ? "agent run" : "agent --standby"}</div>
-        <div class="desk-mini-ticket"><span>${run ? "ticket" : "queued"}</span> ${esc(contract.short)}</div>
+        <div class="desk-mini-ticket"><span>${run ? "MISSION" : "NEXT UP"}</span> ${esc(contract.short)}</div>
         <div class="desk-mini-output"><span aria-hidden="true">›</span> ${esc(line)}<i class="desk-cursor"></i></div>
         ${run && state !== "shipped" ? `<div class="desk-micro-progress" aria-label="${run.phase} of 7 steps">${phases.map((_, i) => `<i class="${i < run.phase ? "checked" : ""}"></i>`).join("")}</div>` : ""}
       </div>
-      <button class="desk-launch" type="button" data-desk-action="open"><span>${state === "blocked" ? "Refuel agent" : state === "running" ? "Inspect run" : state === "paused" ? "Inspect checkpoint" : "Open workstation"}</span>${externalIcon}</button>
+      <button class="desk-launch g-btn ${state === "blocked" ? "red" : state === "running" ? "ice" : "lime"}" type="button" data-desk-action="open"><span>${state === "blocked" ? "Refuel agent" : state === "running" ? "Watch it code" : state === "paused" ? "Resume run" : "Start coding"}</span><kbd>1</kbd></button>
       </div>`;
   }
 
@@ -401,10 +440,35 @@ export function initDesk(api) {
     historyId = null;
     tab = "log";
     expanding = true;
+    if (juice.enabled) {
+      keyHandler = (e) => {
+        if (
+          !workspace?.isConnected ||
+          game.run?.status !== "running" ||
+          e.metaKey ||
+          e.ctrlKey ||
+          e.altKey ||
+          e.target.closest?.("input,textarea,select,button,a")
+        )
+          return;
+        if (e.key.length === 1 || e.key === "Enter" || e.key === "Backspace") {
+          e.preventDefault();
+          mash(null, true);
+        }
+      };
+      document.addEventListener("keydown", keyHandler);
+      hackTimer = setInterval(() => {
+        if (game.run?.status === "running" && workspace?.isConnected)
+          typeHack(1 + Math.round(Math.random()));
+      }, 70);
+    }
     api.modal("Agent workstation", workspace, {
       wide: true,
       eyebrow: "CASINO OPERATIONS / LOCAL SIM",
       onClose: () => {
+        if (keyHandler) document.removeEventListener("keydown", keyHandler);
+        keyHandler = null;
+        clearInterval(hackTimer);
         if (workspace === instance) workspace = null;
       },
     });
@@ -433,8 +497,8 @@ export function initDesk(api) {
         .split("\n")
         .slice(3, -1)
         .map(
-          (l) =>
-            `<code class="desk-code-${l.startsWith("+") ? "add" : l.startsWith("-") ? "del" : "hunk"}">${esc(l)}</code>`,
+          (l, i) =>
+            `<code style="--i:${i}" class="desk-code-${l.startsWith("+") ? "add" : l.startsWith("-") ? "del" : "hunk"}">${esc(l)}</code>`,
         )
         .join("")}</pre></div>`;
     }
@@ -448,7 +512,11 @@ export function initDesk(api) {
       )
       .join(
         "",
-      )}${run.status === "running" ? `<span class="desk-stream-tail">› ${esc(phases[run.phase])}…<i class="desk-cursor"></i></span>` : ""}</div>`;
+      )}${run.status === "running" ? `<span class="desk-stream-tail">› ${esc(phases[run.phase])}…<i class="desk-cursor"></i></span>` : ""}</div>${
+      juice.enabled && run.status === "running" && run === game.run
+        ? `<div class="desk-hack" aria-hidden="true"><div class="desk-hack-head"><span>${esc(c.file)}</span><span class="desk-hack-hint">MASH ANY KEY TO VIBE HARDER</span></div><pre class="desk-hack-code"></pre></div>`
+        : ""
+    }`;
   }
 
   function render() {
@@ -473,14 +541,14 @@ export function initDesk(api) {
       <div class="desk-broke"><strong>Out of tokens mid-build.</strong><span>${esc(phases[run.phase])} needs ${format(costAt(c, run.phase, run.turbo))} tokens. Your progress is saved.</span></div>
       <div class="desk-actions">${makeButton(api.state.tokens >= costAt(c, run.phase, run.turbo) ? "resume" : "fund", api.state.tokens >= costAt(c, run.phase, run.turbo) ? "Resume agent ▶" : "Get more tokens →", "primary")}${makeButton("floor", "Back to casino")}</div>`
           : `
-      <div class="desk-actions">${run.status === "running" ? makeButton("pause", "Ⅱ Pause agent") : makeButton("resume", "Resume agent ▶", "primary")}</div>`;
+      <div class="desk-actions">${run.status === "running" ? (juice.enabled ? makeButton("mash", "⚡ VIBE HARDER", "mash") : "") + makeButton("pause", "Ⅱ Pause agent") : makeButton("resume", "Resume agent ▶", "primary")}</div>`;
     workspace.innerHTML = `
-      <div class="desk-topline"><span class="desk-identity">${terminalIcon} VIBE-1 <em>/ local worker</em></span><span class="desk-rank">${esc(rankFor(game.count))} · ${game.count} commit${game.count === 1 ? "" : "s"}</span></div>
+      <div class="desk-topline"><span class="desk-identity">${robotMarkup(moodFor(showRun()?.status), "desk-portrait-sm")} VIBE-1 <em>/ local worker</em></span><span class="desk-rank">${esc(rankFor(game.count))} · ${game.count} commit${game.count === 1 ? "" : "s"}</span></div>
       ${
         run
           ? `<div class="desk-ticket"><div class="desk-kicker">${esc(c.client)} <span>·</span> ${run.turbo ? "OVERCLOCK" : "STANDARD"}</div><h3>${esc(c.title)}</h3>${run.brief && run.brief !== c.title ? `<p class="desk-note">“${esc(run.brief)}”</p>` : ""}</div>
       <div class="desk-meter-head"><span class="desk-status desk-status-${esc(run.status)}">${pulse}${statusLabel(run.status)}</span><span>${run.phase}/${phases.length} STEPS · ${format(run.spent)} TOKENS USED</span></div>
-      <div class="desk-stage-meter">${phases.map((phase, i) => `<span title="${phase}" class="${i < run.phase ? "done" : i === run.phase ? "now" : ""}"></span>`).join("")}</div>
+      <div class="desk-stage-meter">${phases.map((phase, i) => `<span title="${phase}" class="${i < run.phase ? "done" : i === run.phase && run.status !== "shipped" ? "now" : ""}"><i>${phase}</i></span>`).join("")}</div>
       <div class="desk-tabs" aria-label="Run details">${[
         ["log", "Output"],
         ["diff", "Diff"],
@@ -488,7 +556,7 @@ export function initDesk(api) {
       ]
         .map(
           ([key, label]) =>
-            `<button type="button" data-desk-action="tab" data-tab="${key}" aria-pressed="${tab === key}">${label}${key === "diff" && run.phase >= 4 ? " <i>1</i>" : ""}</button>`,
+            `<button type="button" class="g-btn ${tab === key ? "ice" : "ghost"}" data-desk-action="tab" data-tab="${key}" aria-pressed="${tab === key}">${label}${key === "diff" && run.phase >= 4 ? " <i>1</i>" : ""}</button>`,
         )
         .join("")}</div>
       <div class="desk-inspector">${inspector(run)}</div>
@@ -496,18 +564,117 @@ export function initDesk(api) {
           : `
       <div class="desk-compose">
         <div class="desk-kicker">ISSUE BOUNTY BOARD</div>
-        <h3>Put your agent to work<span>.</span></h3>
-        <label class="desk-field">Contract<select data-desk-field="contract">${options}</select></label>
-        <label class="desk-field">Operator brief<textarea data-desk-field="note" rows="2" maxlength="${maxNote}" placeholder="${esc(choice().title)}">${esc(game.note)}</textarea></label>
-        <div class="desk-speedrow"><div class="desk-speeds" aria-label="Worker speed">${[false, true].map((t) => `<button type="button" data-desk-action="speed" data-speed="${t ? 1 : 0}" aria-pressed="${game.turbo === t}">${t ? "⚡ Overclock" : "Standard"}</button>`).join("")}</div><span>${game.turbo ? "2× speed" : "1× speed"}</span></div>
-        <div class="desk-offer"><div><small>Build cost</small><b>${format(estimate(choice(), game.turbo))} <em>tokens</em></b></div><div><small>On merge</small><b>+${format(bounty(choice(), game.turbo))} <em>tokens</em></b></div></div>
-        ${makeButton("start", "▶ Deploy agent", "primary")}
+        <h3>Mission select<span>.</span></h3>
+        <div class="desk-quests" role="radiogroup" aria-label="Contract">${contracts
+          .map((o) => {
+            const locked = o.unlock > game.count;
+            return `<button type="button" class="desk-quest${o.id === game.selected ? " picked" : ""}" role="radio" aria-checked="${o.id === game.selected}" data-desk-action="pick" data-id="${o.id}" ${locked ? "disabled" : ""}><small>${esc(o.client)}</small><b>${esc(o.title)}</b><span class="desk-quest-foot"><i class="desk-stars">${stars(o.size)}</i>${locked ? `<em>🔒 ${o.unlock} commits</em>` : `<em>+${format(bounty(o, game.turbo))}</em>`}</span></button>`;
+          })
+          .join("")}</div>
+        <label class="desk-field">Operator brief <em>type fast. it helps. probably.</em><textarea data-desk-field="note" rows="2" maxlength="${maxNote}" placeholder="${esc(choice().title)}">${esc(game.note)}</textarea></label>
+        <div class="desk-launchpad">
+          <div class="desk-speeds" aria-label="Worker speed">${[false, true].map((t) => `<button type="button" class="g-btn ${t ? "volt" : "ghost"}" data-desk-action="speed" data-speed="${t ? 1 : 0}" aria-pressed="${game.turbo === t}">${t ? "⚡ Overclock 2×" : "Standard 1×"}</button>`).join("")}</div>
+          <div class="desk-offer"><div><small>Burn</small><b>${format(estimate(choice(), game.turbo))}</b></div><div class="desk-offer-win"><small>Bounty</small><b>+${format(bounty(choice(), game.turbo))}</b></div></div>
+          ${makeButton("start", "▶ Deploy agent", "primary")}
+        </div>
       </div>
       ${game.history.length ? `<div class="desk-previous"><span>Latest commit</span><button data-desk-action="history-run" data-hash="${esc(game.history[0].hash)}">${esc(game.history[0].hash)} ↗</button></div>` : ""}`
       }
       <div class="desk-t3"><span>${live() ? "Worker runs while you play." : "Local simulation · fake tokens"}</span>${makeButton("t3", "Open in T3 Code ↗", "link")}</div>`;
     const stream = workspace.querySelector(".desk-scroll-log");
     if (stream) stream.scrollTop = stream.scrollHeight;
+    if (!juice.enabled) return;
+    juice.powerMode(workspace.querySelector('[data-desk-field="note"]'));
+    paintHack();
+    const shown = showRun();
+    if (shown === game.run && run && tab === "log" && run.phase > typedPhase) {
+      typedPhase = run.phase;
+      const latest = [...workspace.querySelectorAll(".desk-event span")].at(-1);
+      if (latest && !historyId) typewrite(latest);
+    }
+  }
+
+  function typewrite(node) {
+    const full = node.textContent;
+    node.textContent = "";
+    node.classList.add("desk-typing");
+    let i = 0;
+    const iv = setInterval(() => {
+      if (!node.isConnected) return clearInterval(iv);
+      i = Math.min(full.length, i + 2 + Math.floor(Math.random() * 3));
+      node.textContent = full.slice(0, i);
+      if (i % 6 < 3) api.sound("key", { pitch: 1.6 + Math.random() * 0.4 });
+      if (i >= full.length) {
+        clearInterval(iv);
+        node.classList.remove("desk-typing");
+      }
+    }, 24);
+  }
+
+  function hackSource(c) {
+    const lines = [`// VIBE-1 :: ${c.branch}`, ...c.code];
+    for (let i = 0; i < 40; i++) {
+      if (i % 5 === 0) lines.push("");
+      lines.push(filler[(i * 7 + c.id.length) % filler.length]);
+      if (i % 9 === 4) lines.push(...c.code);
+    }
+    return lines.join("\n") + "\n";
+  }
+  function typeHack(n) {
+    const run = game.run;
+    if (!run) return;
+    if (hack.hash !== run.hash) {
+      hack = { hash: run.hash, text: "", pos: 0, src: hackSource(contractFor(run.contract)) };
+    }
+    for (let i = 0; i < n; i++) {
+      hack.text += hack.src[hack.pos % hack.src.length];
+      hack.pos++;
+    }
+    if (hack.text.length > 1600) hack.text = hack.text.slice(-1200);
+    paintHack();
+  }
+  function highlight(code) {
+    return esc(code)
+      .replace(/(\/\/.*)/g, '<i class="hl-c">$1</i>')
+      .replace(/(&quot;.*?&quot;)/g, '<i class="hl-s">$1</i>')
+      .replace(/\b(const|let|return|export|function|if|while|for|await|import|from|of|new)\b/g, '<i class="hl-k">$1</i>');
+  }
+  function paintHack() {
+    const pre = workspace?.querySelector(".desk-hack-code");
+    if (!pre) return;
+    const lines = hack.text.split("\n").slice(-11);
+    pre.innerHTML = lines.map(highlight).join("\n") + '<i class="desk-cursor"></i>';
+  }
+
+  function mash(target, fromKey) {
+    const run = game.run;
+    if (!run || run.status !== "running") return;
+    const button = workspace?.querySelector('[data-desk-action="mash"]');
+    const origin = target || button || workspace;
+    const n = juice.combo(origin);
+    typeHack(fromKey ? 4 + Math.floor(Math.random() * 4) : 7);
+    // Every mash shaves time off the current step. The tokens still burn.
+    const now = performance.now();
+    const left = Math.max(0, phaseDue - now);
+    const next = Math.max(70, left * (fromKey ? 0.9 : 0.84) - 25);
+    if (left > 80) {
+      window.clearTimeout(timer);
+      phaseDue = now + next;
+      timer = window.setTimeout(advance, next);
+    }
+    const pre = workspace?.querySelector(".desk-hack-code");
+    juice.burst(fromKey && pre ? pre.querySelector(".desk-cursor") || pre : origin, {
+      count: 8 + Math.min(16, n / 4),
+      speed: 0.6 + Math.min(0.9, n / 80),
+      colors: n > 40 ? ["#7df9ff", "#ff3d9a", "#ffe066", "#fff"] : ["#a6ff8f", "#7df9ff", "#fff"],
+      size: 3,
+    });
+    if (n % 15 === 0) juice.burst(origin, { kind: "ring", colors: ["#a6ff8f"] });
+    juice.shake(Math.min(0.16, 0.05 + n / 900));
+    juice.hype(0.45);
+    juice.xp(0.6);
+    juice.pop(button, "fx-pop");
+    api.sound("mash", { pitch: 1 + Math.min(1.4, (n % 40) / 26) });
   }
 
   function schedule(delay) {
@@ -515,6 +682,7 @@ export function initDesk(api) {
     const run = game.run;
     if (!run || run.status !== "running") return;
     const ms = delay ?? normalDurations[run.phase] * (run.turbo ? 0.5 : 1);
+    phaseDue = performance.now() + ms;
     timer = window.setTimeout(advance, ms);
   }
 
@@ -548,6 +716,17 @@ export function initDesk(api) {
       run.status = "blocked";
       save();
       api.sound("error");
+      if (juice.enabled) {
+        juice.flash("#ff4d6d", 0.35);
+        juice.shake(0.5);
+        juice.banner({
+          kicker: "VIBE-1 / HALTED",
+          title: "OUT OF TOKENS",
+          sub: "Your agent is broke. The casino is right there.",
+          tone: "red",
+          duration: 1500,
+        });
+      }
       api.log(
         `VIBE-1 ran out of tokens during ${phases[run.phase].toLowerCase()}.`,
         "agent",
@@ -569,15 +748,61 @@ export function initDesk(api) {
       api.earn(run.reward, `Contract shipped · ${c.short}`);
       api.stat("commits");
       api.sound("commit");
-      api.fx("win");
+      if (juice.enabled) {
+        // Critical merge: the 10× engineer myth, occasionally true. Hype raises the odds.
+        const crit = Math.random() < 0.14 + juice.tier * 0.06;
+        const critBonus = crit ? run.reward : 0;
+        if (crit) {
+          api.earn(critBonus, `Critical merge ×2 · ${run.hash}`);
+          run.crit = true;
+          game.history[0].crit = true;
+          save();
+        }
+        juice.payout({
+          from: workspace?.isConnected
+            ? workspace.querySelector(".desk-stage-meter")
+            : card,
+          amount: run.reward + critBonus,
+          bet: run.spent,
+          big: crit ? "mega" : "big",
+          title: crit ? "CRIT MERGE" : "SHIPPED",
+          tone: crit ? "pink" : "green",
+          label: `${c.client} · ${run.hash}`,
+        });
+        juice.burst(null, { kind: "star", count: 40, colors: ["#a6ff8f", "#fff", "#7df9ff"] });
+      } else api.fx("win");
       api.log(`VIBE-1 merged ${run.hash} · ${c.short}`, "agent");
       api.toast(`Shipped ${run.hash} · +${format(run.reward)} tokens`);
     } else {
       save();
-      api.sound("tick");
+      api.sound(juice.enabled ? "step" : "tick", { pitch: 1 + run.phase * 0.09 });
       schedule();
     }
     render();
+    if (juice.enabled && run.status === "running") stepFx(run);
+  }
+
+  function stepFx(run) {
+    const seg = workspace?.querySelectorAll(".desk-stage-meter span")[run.phase - 1];
+    const at = seg || card;
+    juice.burst(at, { count: 14, colors: ["#a6ff8f", "#fff", "#ffe066"], speed: 0.7 });
+    juice.float(at, phases[run.phase - 1].toUpperCase() + " ✓", { tone: "bonus", size: 20 });
+    juice.hype(2.5);
+    juice.xp(6);
+    if (run.phase === 5) {
+      // Tests just passed.
+      juice.flash("#4dff7a", 0.22);
+      juice.float(workspace?.querySelector(".desk-inspector") || card, "ALL GREEN", {
+        tone: "gain",
+        size: 54,
+      });
+      juice.burst(workspace?.querySelector(".desk-inspector") || card, {
+        kind: "confetti",
+        count: 40,
+        colors: ["#4dff7a", "#a6ff8f", "#fff"],
+      });
+      juice.shake(0.25);
+    }
   }
 
   function start() {
@@ -600,8 +825,19 @@ export function initDesk(api) {
     save();
     api.sound("click");
     api.log(`VIBE-1 picked up “${c.short}”.`, "agent");
+    typedPhase = -1;
     render();
     schedule(320);
+    if (juice.enabled) {
+      api.sound("riser", { length: 0.5 });
+      juice.flash("#7df9ff", 0.18);
+      juice.burst(workspace?.querySelector(".desk-ticket") || card, {
+        count: 40,
+        colors: ["#7df9ff", "#a6ff8f", "#fff"],
+      });
+      juice.shake(0.3);
+      juice.hype(4);
+    }
   }
 
   function pause() {
@@ -661,6 +897,20 @@ export function initDesk(api) {
       case "pause":
         pause();
         break;
+      case "mash":
+        mash(target);
+        break;
+      case "pick": {
+        if (live()) break;
+        const picked = contractFor(target.dataset.id);
+        if (picked.unlock > game.count) break;
+        game.selected = picked.id;
+        save();
+        render();
+        api.sound("click");
+        juice.burst(workspace?.querySelector(".desk-quest.picked"), { count: 14 });
+        break;
+      }
       case "resume":
         resume();
         break;
@@ -686,6 +936,12 @@ export function initDesk(api) {
         game.turbo = target.dataset.speed === "1";
         save();
         render();
+        if (game.turbo && juice.enabled) {
+          const b = workspace?.querySelector('[data-speed="1"]');
+          juice.burst(b, { count: 24, colors: ["#ffe066", "#ff8a3d", "#fff"] });
+          juice.shake(0.2);
+          api.sound("tierup");
+        }
         break;
       case "next": {
         if (live()) {
@@ -770,6 +1026,8 @@ export function initDesk(api) {
     update,
     destroy() {
       window.clearTimeout(timer);
+      clearInterval(hackTimer);
+      if (keyHandler) document.removeEventListener("keydown", keyHandler);
       card?.removeEventListener("click", onClick);
     },
   };
