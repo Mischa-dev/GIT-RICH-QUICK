@@ -28,7 +28,10 @@ The row above the IDE is your fleet. **SPAWN** (or ×5) puts another agent on a 
 - Agents ping when they finish and wait for **REVIEW**. **ACCEPT ALL** merges them one after another as a **MERGE TRAIN**, and every car in the train pays a little more than the last.
 - Agents that can't pay turn red and **STARVE** until you feed them.
 - **WALL** shows every agent streaming code at once.
-- Start with 4 slots, then buy more, up to 24.
+- Start with 4 slots, then buy more (one at a time or +10), up to **100**. **MAX** fills every free slot.
+- **AGENTS HIRE AGENTS:** every agent that finishes spawns two more.
+- **AUTO-MERGE:** finished agents merge themselves, and back-to-back merges keep one train going (up to ×3).
+- Past 8 agents the row turns into a swarm grid: one cell per agent, coloured by status.
 
 ### While it codes
 
