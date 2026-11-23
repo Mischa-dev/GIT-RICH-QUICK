@@ -21,6 +21,22 @@ Press any key. The agent's IDE takes the middle of the screen.
 5. **ALL IN?** Put your whole balance on red or black (a real single-zero wheel). Win, and the agent resumes by itself.
 6. **SHIPPED.** The diff slams into the editor and the payout rains into your wallet. Pick the next ticket.
 
+### Run an ungodly number of agents
+
+The row above the IDE is your fleet. **SPAWN** (or ×5) puts another agent on a random ticket. Every agent bills the same wallet, so the more you run, the faster you're broke.
+
+- Agents ping when they finish and wait for **REVIEW**. **ACCEPT ALL** merges them one after another as a **MERGE TRAIN**, and every car in the train pays a little more than the last.
+- Agents that can't pay turn red and **STARVE** until you feed them.
+- **WALL** shows every agent streaming code at once.
+- Start with 4 slots, then buy more, up to 24.
+
+### While it codes
+
+- **Side bets on your own build:** "ALL GREEN FIRST TRY? 2×" and "CRIT MERGE? 4×" pop up mid-run on a 4-second timer.
+- **The test reel:** 48 tests race green. Sometimes it stops at 47/48 and re-runs, and you pay again.
+- **Ship streak:** every consecutive ship pays 10% more (up to ×2) and speeds the music up. Let the CONTINUE countdown hit zero and it's gone.
+- **The announcer** yells at you. Turn him off in Sound & FX if you must.
+
 ### Slop skills
 
 Toggles under the prompt that do exactly what they say:
@@ -49,6 +65,9 @@ Toggles under the prompt that do exactly what they say:
 | `2` `3` `4` | Merge Conflict, Blame Roulette, Deploy or Die |
 | `5` `6` | Token Pond, Sponsor TV |
 | `9` | Ledger |
+| `N` / `Shift`+`N` | Spawn an agent / five agents (`Shift` needed while VIBE-1 is coding) |
+| `M` | Accept all finished agents |
+| `W` | Agent wall |
 | `Esc` | Close a scene |
 
 Open **Sound & FX** (the speaker button) for music, effects and visual intensity (Chill, Hyped, Feral). If your system asks for reduced motion, the shake, strobes, particles and backdrop motion turn off.

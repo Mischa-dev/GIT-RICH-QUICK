@@ -11,6 +11,7 @@ import { initT3 } from "./t3.js";
 import { createJuice } from "./juice.js";
 import { startBackdrop } from "./backdrop.js";
 import { initAllIn } from "./allin.js";
+import { initThreads } from "./threads.js";
 
 const $ = (s) => document.querySelector(s);
 const icons = {
@@ -179,6 +180,7 @@ const api = {
   fund: (reason, callback) => sponsors.open(reason, callback),
   openT3: (brief) => t3.open(brief),
   allIn: (opts) => allin.open(opts),
+  setTempo: (bpm) => audio.setTempo(bpm),
 };
 const allin = initAllIn(api);
 const sponsors = initSponsors(api),
@@ -187,7 +189,10 @@ const sponsors = initSponsors(api),
   desk = initDesk(api),
   fishing = initFishing(api),
   floor = initFloor(api);
-modules = [slots, desk, fishing, floor, t3, sponsors];
+// Parallel agents: VIBE-2…VIBE-N grinding tickets above the IDE.
+const threads = initThreads(api);
+api.threads = threads;
+modules = [slots, desk, fishing, floor, t3, sponsors, threads];
 const stamps = [
   ["First commit", "commits", 1],
   ["Staff engineer", "commits", 5],
@@ -292,16 +297,23 @@ function showAudio() {
       "An original 126 BPM arcade loop.",
       audio.toggleMusic,
     ],
+    [
+      "announcer",
+      "Hype announcer",
+      "A voice that yells SHIPPED at you. Uses your browser's speech.",
+      () => juice.setAnnouncer(!juice.announcer),
+    ],
   ]) {
+    const src = key === "announcer" ? juice : audio;
     const row = el("div", undefined, "audio-row"),
       copy = el("div"),
-      b = el("button", audio[key] ? "On" : "Off", "hud-btn");
-    b.setAttribute("aria-pressed", String(audio[key]));
+      b = el("button", src[key] ? "On" : "Off", "hud-btn");
+    b.setAttribute("aria-pressed", String(src[key]));
     b.setAttribute("aria-label", title);
     b.onclick = () => {
       toggle();
-      b.textContent = audio[key] ? "On" : "Off";
-      b.setAttribute("aria-pressed", String(audio[key]));
+      b.textContent = src[key] ? "On" : "Off";
+      b.setAttribute("aria-pressed", String(src[key]));
       soundIcon();
     };
     copy.append(el("b", title), el("p", sub));
